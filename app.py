@@ -1,3 +1,12 @@
+import streamlit as st
+
+# Configuração da página
+st.set_page_config(
+    page_title="Meu App",
+    layout="wide"   # <- isso deixa o conteúdo ocupar toda a largura da tela
+)
+
+
 import os
 from pathlib import Path
 
