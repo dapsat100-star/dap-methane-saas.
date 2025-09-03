@@ -8,15 +8,37 @@ import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
-# -----------------------------------------------------------------------------
-# Config da página
-# -----------------------------------------------------------------------------
 st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
-load_dotenv()  # útil quando rodar fora do Streamlit Cloud
+load_dotenv()
 
-# -----------------------------------------------------------------------------
-# Hero (logo + título) apenas na tela de login
-# -----------------------------------------------------------------------------
+PAGES_DIR = Path("pages")
+
+# -------- util: localizar a página de estatísticas --------
+CANDIDATE_NAMES = [
+    "1_📊_Estatisticas_Gerais.py",
+    "1_Estatisticas_Gerais.py",
+    "1_estatisticas_gerais.py",
+    "Estatisticas_Gerais.py",
+    "estatisticas.py",
+    "estatisticas_gerais.py",
+]
+def find_stats_page() -> Path | None:
+    """Tenta achar a página de Estatísticas, tolerando nomes diferentes/sem emoji."""
+    if not PAGES_DIR.exists():
+        return None
+    # 1) match por nomes candidatos
+    for name in CANDIDATE_NAMES:
+        p = PAGES_DIR / name
+        if p.exists():
+            return p
+    # 2) fallback: qualquer .py que contenha 'estat' no nome
+    for p in PAGES_DIR.glob("*.py"):
+        if "estat" in p.name.lower():
+            return p
+    # 3) último recurso: a primeira página encontrada
+    any_page = next(PAGES_DIR.glob("*.py"), None)
+    return any_page
+
 def login_hero():
     logo_candidates = [
         Path("daplogo_upscaled.png"),
@@ -33,13 +55,10 @@ def login_hero():
         """,
         unsafe_allow_html=True
     )
-
     if logo_path:
         st.image(Image.open(logo_path), width=220)
     else:
-        st.warning("Logo não encontrado (envie 'daplogo_upscaled.png' na raiz "
-                   "ou 'assets/logo.png').")
-
+        st.warning("Logo não encontrado (envie 'daplogo_upscaled.png' na raiz ou 'assets/logo.png').")
     st.markdown(
         """
             <h1 style="margin-top:16px;font-size:28px;color:#003366;">
@@ -50,9 +69,7 @@ def login_hero():
         unsafe_allow_html=True
     )
 
-# -----------------------------------------------------------------------------
-# Autenticação (streamlit-authenticator)
-# -----------------------------------------------------------------------------
+# -------- autenticação --------
 with open("auth_config.yaml") as f:
     config = yaml.load(f, Loader=SafeLoader)
 
@@ -63,12 +80,11 @@ authenticator = stauth.Authenticate(
     config["cookie"]["expiry_days"],
 )
 
-# Mostrar hero até logar
 hero_placeholder = st.empty()
 with hero_placeholder.container():
     login_hero()
 
-# Compat: tenta API nova (>=0.4) e cai para antiga (<=0.3.2)
+# compat nova/antiga
 try:
     name, auth_status, username = authenticator.login(location="main")
 except Exception:
@@ -79,27 +95,28 @@ if auth_status is False:
 elif auth_status is None:
     st.info("Por favor, faça login para continuar.")
 elif auth_status:
-    # Remove hero ao autenticar
     hero_placeholder.empty()
-
-    # Sidebar: usuário + logout
     st.sidebar.success(f"Logado como: {name}")
     authenticator.logout("Sair", "sidebar")
 
-    # -------------------------------------------------------------------------
-    # Redireciona automaticamente para a 1ª página (Estatísticas Gerais)
-    # -------------------------------------------------------------------------
-    try:
-        st.switch_page("pages/1_📊_Estatisticas_Gerais.py")
-        st.stop()
-    except Exception:
-        # Fallback (versões antigas sem switch_page)
-        st.success("Login OK. Clique para ir às Estatísticas Gerais.")
-        st.sidebar.page_link("pages/1_📊_Estatisticas_Gerais.py", label="Ir para Estatísticas Gerais")
+    # ---------- redirecionar com segurança ----------
+    stats_page = find_stats_page()
+    if stats_page and stats_page.exists():
+        # tenta redirecionar; se a versão não tiver switch_page, cai no fallback
+        try:
+            st.switch_page(str(stats_page).replace("\\", "/"))
+        except Exception:
+            st.success("Login OK. Clique para ir às Estatísticas Gerais.")
+            st.sidebar.page_link(str(stats_page).replace("\\", "/"), label="Ir para Estatísticas Gerais")
+            st.stop()
+    else:
+        st.warning(
+            "Não encontrei a página de **Estatísticas** em `pages/`.\n\n"
+            "Crie um arquivo, por exemplo `pages/1_Estatisticas_Gerais.py`, "
+            "ou renomeie a sua página atual para um desses nomes padrão."
+        )
 
-    # -------------------------------------------------------------------------
-    # (Opcional) Conexão Snowflake via variáveis de ambiente / secrets
-    # -------------------------------------------------------------------------
+    # ---------- (opcional) conexão Snowflake ----------
     use_sf = st.sidebar.checkbox("Conectar Snowflake (read-only)", value=False)
     if use_sf:
         try:
@@ -116,12 +133,11 @@ elif auth_status:
         except Exception as e:
             st.sidebar.error(f"Falha na conexão Snowflake: {e}")
 
-    # -------------------------------------------------------------------------
-    # Links na sidebar (só se o arquivo existir) — útil no fallback
-    # -------------------------------------------------------------------------
+    # ---------- links seguros na sidebar (aparecem só se existir o arquivo) ----------
     def safe_page_link(path: str, label: str):
-        if Path(path).exists():
-            st.sidebar.page_link(path, label=label)
+        p = Path(path)
+        if p.exists():
+            st.sidebar.page_link(str(p).replace("\\", "/"), label=label)
 
     safe_page_link("pages/1_📊_Estatisticas_Gerais.py", "Estatísticas Gerais")
     safe_page_link("pages/2_🗺️_Geoportal.py", "Geoportal")
