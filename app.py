@@ -21,7 +21,7 @@ def login_hero():
         """
         <div style="display:flex;flex-direction:column;justify-content:center;
                     align-items:center;height:60vh;text-align:center;">
-            <img src="dapatlas.jpeg" width="220">
+            <img src="dapatlas.jpeg" width="420">
             <h1 style="margin-top:16px;font-size:28px;color:#003366;">
                 PLATAFORMA DE MONITORAMENTO DE METANO POR SATÉLITE
             </h1>
