@@ -1,3 +1,6 @@
+from ui_helpers import hide_streamlit_chrome
+hide_streamlit_chrome(hide_header=True, hide_toolbar=True, hide_sidebar_nav=False)
+
 # --- Guarda + Logout (cole no topo de cada página) ---
 import streamlit as st
 import yaml
