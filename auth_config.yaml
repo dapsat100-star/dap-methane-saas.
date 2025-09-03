@@ -3,8 +3,7 @@ credentials:
     demo:
       name: Demo User
       email: demo@dap.com
-      password: demo123
-
+      password: "$2b$12$7f2MHDpO7M2CgZ92nCngC.hM7xy1WZ8TeuKVDNO1i6i3EUp2M4cHa"
 cookie:
   expiry_days: 30
   key: SOME_RANDOM_SECURE_KEY
