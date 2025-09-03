@@ -3,7 +3,7 @@ import streamlit as st
 st.set_page_config(
     page_title="📊 Estatísticas Gerais",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # CSS leve para mobile (margens menores e métricas mais confortáveis)
