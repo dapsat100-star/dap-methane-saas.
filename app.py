@@ -29,7 +29,8 @@ authenticator = stauth.Authenticate(
 )
 
 # FIX: remover o parâmetro problemático; funciona em todas as versões
-name, auth_status, username = authenticator.login("Login")
+name, auth_status, username = authenticator.login(location="main")
+
 
 if auth_status is False:
     st.error("Usuário ou senha inválidos.")
