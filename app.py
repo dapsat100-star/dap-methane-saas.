@@ -2,33 +2,22 @@ import os, pathlib
 import streamlit as st
 import yaml
 from yaml.loader import SafeLoader
+import streamlit as st
 import streamlit_authenticator as stauth
-from dotenv import load_dotenv
 
-st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
+# (opcional) mostrar versão no rodapé para diagnosticar
+st.caption(f"streamlit_authenticator: v{getattr(stauth, '__version__', 'unknown')}")
 
-# ---------- Header with logo (right aligned) ----------
-logo_file = pathlib.Path("assets/logo.png")
-if logo_file.exists():
-    c1, c2 = st.columns([6,1])
-    with c2:
-        st.image(str(logo_file), width=140)
-
-# ---------- Load .env (optional for local dev) ----------
-load_dotenv()
-
-# ---------- Auth: streamlit-authenticator ----------
-with open("auth_config.yaml") as f:
-    config = yaml.load(f, Loader=SafeLoader)
-
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days'],
-)
-
-name, auth_status, username = authenticator.login("Login", location="main")
+# --- CHAMADA DE LOGIN ROBUSTA ---
+# Tenta com parâmetro nomeado (API nova) e, se falhar, tenta posicional (API antiga).
+try:
+    name, auth_status, username = authenticator.login("Login", location="sidebar")
+except TypeError:
+    # Algumas versões antigas não aceitam o nome do parâmetro.
+    name, auth_status, username = authenticator.login("Login", "sidebar")
+except ValueError as e:
+    # Se a lib reclamar de 'Location must be one of...', força 'sidebar' com nomeado.
+    name, auth_status, username = authenticator.login("Login", location="sidebar")
 
 
 if auth_status is False:
