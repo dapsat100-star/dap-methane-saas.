@@ -9,16 +9,15 @@ from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
 # -----------------------------------------------------------------------------
-# Configuração básica
+# Config da página
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
-load_dotenv()  # útil quando hospedar fora do Streamlit Cloud
+load_dotenv()  # útil quando rodar fora do Streamlit Cloud
 
 # -----------------------------------------------------------------------------
 # Hero (logo + título) apenas na tela de login
 # -----------------------------------------------------------------------------
 def login_hero():
-    # tenta achar o logo em dois lugares
     logo_candidates = [
         Path("daplogo_upscaled.png"),
         Path("assets/logo.png"),
@@ -54,7 +53,6 @@ def login_hero():
 # -----------------------------------------------------------------------------
 # Autenticação (streamlit-authenticator)
 # -----------------------------------------------------------------------------
-# Espera 'auth_config.yaml' na raiz do repositório
 with open("auth_config.yaml") as f:
     config = yaml.load(f, Loader=SafeLoader)
 
@@ -65,17 +63,15 @@ authenticator = stauth.Authenticate(
     config["cookie"]["expiry_days"],
 )
 
-# Mostra o HERO antes do login
+# Mostrar hero até logar
 hero_placeholder = st.empty()
 with hero_placeholder.container():
     login_hero()
 
-# Login compatível com 0.4.x (novo) e 0.3.x (antigo)
+# Compat: tenta API nova (>=0.4) e cai para antiga (<=0.3.2)
 try:
-    # API nova (>=0.4)
     name, auth_status, username = authenticator.login(location="main")
 except Exception:
-    # API antiga (<=0.3.2)
     name, auth_status, username = authenticator.login("Login", "main")
 
 if auth_status is False:
@@ -83,12 +79,23 @@ if auth_status is False:
 elif auth_status is None:
     st.info("Por favor, faça login para continuar.")
 elif auth_status:
-    # remove o hero ao autenticar
+    # Remove hero ao autenticar
     hero_placeholder.empty()
 
     # Sidebar: usuário + logout
     st.sidebar.success(f"Logado como: {name}")
     authenticator.logout("Sair", "sidebar")
+
+    # -------------------------------------------------------------------------
+    # Redireciona automaticamente para a 1ª página (Estatísticas Gerais)
+    # -------------------------------------------------------------------------
+    try:
+        st.switch_page("pages/1_📊_Estatisticas_Gerais.py")
+        st.stop()
+    except Exception:
+        # Fallback (versões antigas sem switch_page)
+        st.success("Login OK. Clique para ir às Estatísticas Gerais.")
+        st.sidebar.page_link("pages/1_📊_Estatisticas_Gerais.py", label="Ir para Estatísticas Gerais")
 
     # -------------------------------------------------------------------------
     # (Opcional) Conexão Snowflake via variáveis de ambiente / secrets
@@ -110,11 +117,15 @@ elif auth_status:
             st.sidebar.error(f"Falha na conexão Snowflake: {e}")
 
     # -------------------------------------------------------------------------
-    # Navegação entre páginas (arquivos em pages/)
+    # Links na sidebar (só se o arquivo existir) — útil no fallback
     # -------------------------------------------------------------------------
-    st.sidebar.page_link("pages/1_📊_Estatisticas_Gerais.py", label="Estatísticas Gerais")
-    st.sidebar.page_link("pages/2_🗺️_Geoportal.py", label="Geoportal")
-    st.sidebar.page_link("pages/3_📄_Relatorio_OGMP_2_0.py", label="Relatório OGMP 2.0")
-    st.sidebar.page_link("pages/4_🛰️_Agendamento_de_Imagens.py", label="Agendamento de Imagens")
+    def safe_page_link(path: str, label: str):
+        if Path(path).exists():
+            st.sidebar.page_link(path, label=label)
+
+    safe_page_link("pages/1_📊_Estatisticas_Gerais.py", "Estatísticas Gerais")
+    safe_page_link("pages/2_🗺️_Geoportal.py", "Geoportal")
+    safe_page_link("pages/3_📄_Relatorio_OGMP_2_0.py", "Relatório OGMP 2.0")
+    safe_page_link("pages/4_🛰️_Agendamento_de_Imagens.py", "Agendamento de Imagens")
 
     st.markdown("> Use o menu à esquerda para navegar nas páginas.")
