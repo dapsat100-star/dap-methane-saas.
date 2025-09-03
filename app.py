@@ -20,7 +20,7 @@ load_dotenv()  # útil quando hospedar fora do Streamlit Cloud
 def login_hero():
     # tenta achar o logo em dois lugares
     logo_candidates = [
-        Path("daplogo_upscaled.png"),
+        Path("dapatlas.jpeg"),
         Path("assets/logo.png"),
         Path(__file__).parent / "daplogo_upscaled.png",
         Path(__file__).parent / "assets/logo.png",
