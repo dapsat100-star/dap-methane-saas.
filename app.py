@@ -8,17 +8,17 @@ import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Configuração básica
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
 load_dotenv()
 
 PAGES_DIR = Path("pages")
 
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Util: localizar a página de estatísticas de forma tolerante a nomes
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 CANDIDATE_NAMES = [
     "1_📊_Estatisticas_Gerais.py",
     "1_Estatisticas_Gerais.py",
@@ -30,27 +30,39 @@ CANDIDATE_NAMES = [
 def find_stats_page() -> Path | None:
     if not PAGES_DIR.exists():
         return None
-    # 1) nomes “padrão”
     for name in CANDIDATE_NAMES:
         p = PAGES_DIR / name
         if p.exists():
             return p
-    # 2) qualquer arquivo que contenha “estat”
     for p in PAGES_DIR.glob("*.py"):
         if "estat" in p.name.lower():
             return p
-    # 3) fallback: primeira página encontrada
     return next(PAGES_DIR.glob("*.py"), None)
 
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# CSS: mostrar/ocultar o nav de páginas na sidebar
+# -----------------------------------------------------------------------------
+def _set_nav_visibility(show: bool):
+    st.markdown(
+        f"""
+        <style>
+        div[data-testid="stSidebarNav"] {{
+            display: {"flex" if show else "none"} !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# -----------------------------------------------------------------------------
 # Tela hero (logo + título) só no login
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def login_hero():
     logo_candidates = [
-        Path("dapatlas.jpeg"),
+        Path("daplogo_upscaled.png"),
         Path("assets/logo.png"),
-        Path(__file__).parent / "dapatlas.jpeg",
-        Path(__file__).parent / "dapatlas.jepg",
+        Path(__file__).parent / "daplogo_upscaled.png",
+        Path(__file__).parent / "assets/logo.png",
     ]
     logo_path = next((p for p in logo_candidates if p.exists()), None)
 
@@ -61,12 +73,10 @@ def login_hero():
         """,
         unsafe_allow_html=True,
     )
-
     if logo_path:
         st.image(Image.open(logo_path), width=220)
     else:
-        st.warning("Logo não encontrado (envie 'dapatlas.jpeg' na raiz ou 'assets/logo.png').")
-
+        st.warning("Logo não encontrado (envie 'daplogo_upscaled.png' na raiz ou 'assets/logo.png').")
     st.markdown(
         """
             <h1 style="margin-top:16px;font-size:28px;color:#003366;">
@@ -77,9 +87,9 @@ def login_hero():
         unsafe_allow_html=True,
     )
 
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Autenticação (streamlit-authenticator)
-# --------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 with open("auth_config.yaml") as f:
     config = yaml.load(f, Loader=SafeLoader)
 
@@ -90,7 +100,7 @@ authenticator = stauth.Authenticate(
     config["cookie"]["expiry_days"],
 )
 
-# Mostra o hero antes do login
+# Mostrar hero antes do login
 hero_placeholder = st.empty()
 with hero_placeholder.container():
     login_hero()
@@ -100,6 +110,12 @@ try:
     name, auth_status, username = authenticator.login(location="main")
 except Exception:
     name, auth_status, username = authenticator.login("Login", "main")
+
+# Esconde o menu antes do login; mostra depois
+if st.session_state.get("authentication_status") is True:
+    _set_nav_visibility(True)
+else:
+    _set_nav_visibility(False)
 
 if auth_status is False:
     st.error("Usuário ou senha inválidos.")
@@ -112,24 +128,22 @@ elif auth_status:
     # Sidebar: usuário + logout
     st.sidebar.success(f"Logado como: {name}")
     try:
-        # versões novas podem aceitar apenas location=
-        authenticator.logout(location="sidebar")
+        authenticator.logout(location="sidebar")       # versões novas
     except Exception:
-        # versões antigas usam (label, location)
-        authenticator.logout("Sair", "sidebar")
+        authenticator.logout("Sair", "sidebar")        # versões antigas
 
     # ----------------------------------------------------------------------
     # Redirecionar automaticamente para a página de Estatísticas (se existir)
     # ----------------------------------------------------------------------
     stats_page = find_stats_page()
     if stats_page and stats_page.exists():
-        # tenta redirecionar; se a versão da sua lib não tiver switch_page, cai no fallback
         try:
             st.switch_page(str(stats_page).replace("\\", "/"))
             st.stop()
         except Exception:
             st.success("Login OK. Clique para ir às Estatísticas Gerais.")
-            st.sidebar.page_link(str(stats_page).replace("\\", "/"), label="Ir para Estatísticas Gerais")
+            if stats_page.exists():
+                st.sidebar.page_link(str(stats_page).replace("\\", "/"), label="Ir para Estatísticas Gerais")
     else:
         st.warning(
             "Não encontrei a página de **Estatísticas** em `pages/`.\n\n"
