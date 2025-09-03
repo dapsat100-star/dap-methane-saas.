@@ -1,27 +1,32 @@
 import os
-import pathlib
+from pathlib import Path
+from PIL import Image
 import streamlit as st
-from dotenv import load_dotenv
-import yaml
-from yaml.loader import SafeLoader
-import streamlit_authenticator as stauth
 
-# -----------------------------------------------------------------------------
-# Configuração da página
-# -----------------------------------------------------------------------------
-st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
-load_dotenv()  # opcional, útil em deploys fora do Streamlit Cloud
-
-# -----------------------------------------------------------------------------
-# Função: Hero central (só na tela de login)
-# -----------------------------------------------------------------------------
 def login_hero():
-    # Mostra logo + título no centro da tela
+    logo_candidates = [
+        Path("daplogo_upscaled.png"),
+        Path("assets/logo.png"),
+        Path(__file__).parent / "daplogo_upscaled.png",
+        Path(__file__).parent / "assets/logo.png",
+    ]
+    logo_path = next((p for p in logo_candidates if p.exists()), None)
+
     st.markdown(
         """
         <div style="display:flex;flex-direction:column;justify-content:center;
                     align-items:center;height:60vh;text-align:center;">
-            <img src="dapatlas.jpeg" width="420">
+        """,
+        unsafe_allow_html=True
+    )
+
+    if logo_path:
+        st.image(Image.open(logo_path), width=220)
+    else:
+        st.warning("Logo não encontrado (tente enviar `daplogo_upscaled.png` na raiz ou `assets/logo.png`).")
+
+    st.markdown(
+        """
             <h1 style="margin-top:16px;font-size:28px;color:#003366;">
                 PLATAFORMA DE MONITORAMENTO DE METANO POR SATÉLITE
             </h1>
