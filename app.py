@@ -1,10 +1,11 @@
 import streamlit as st
 
-# Configuração da página
 st.set_page_config(
-    page_title="Meu App",
-    layout="wide"   # <- isso deixa o conteúdo ocupar toda a largura da tela
+    page_title="Meu App Responsivo",
+    layout="wide",   # deixa expandir em telas grandes
+    initial_sidebar_state="collapsed"  # sidebar escondida no celular
 )
+
 
 
 import os
