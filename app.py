@@ -59,7 +59,7 @@ def _set_nav_visibility(show: bool):
 # -----------------------------------------------------------------------------
 def login_hero():
     logo_candidates = [
-        Path("daplogo_upscaled.png"),
+        Path("dapatals.jpeg"),
         Path("assets/logo.png"),
         Path(__file__).parent / "daplogo_upscaled.png",
         Path(__file__).parent / "assets/logo.png",
