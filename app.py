@@ -61,7 +61,7 @@ def login_hero():
     logo_candidates = [
         Path("dapatals.jpeg"),
         Path("assets/logo.png"),
-        Path(__file__).parent / "daplogo_upscaled.png",
+        Path(__file__).parent / "dapatlas.jpeg",
         Path(__file__).parent / "assets/logo.png",
     ]
     logo_path = next((p for p in logo_candidates if p.exists()), None)
