@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
 
 # ---------- Header with logo (right aligned) ----------
-logo_file = pathlib.Path("daplogo_upscaled.png")
+logo_file = pathlib.Path("dapatlas.jpeg")
 if logo_file.exists():
     c1, c2 = st.columns([6,1])
     with c2:
