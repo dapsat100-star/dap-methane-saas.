@@ -15,19 +15,18 @@ st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide
 load_dotenv()  # útil quando hospedar fora do Streamlit Cloud
 
 # -----------------------------------------------------------------------------
-# Hero (logo + título) mostrado SOMENTE na tela de login
+# Hero (logo + título) apenas na tela de login
 # -----------------------------------------------------------------------------
 def login_hero():
     # tenta achar o logo em dois lugares
     logo_candidates = [
-        Path("dapatlas.jpeg"),
+        Path("daplogo_upscaled.png"),
         Path("assets/logo.png"),
         Path(__file__).parent / "daplogo_upscaled.png",
         Path(__file__).parent / "assets/logo.png",
     ]
     logo_path = next((p for p in logo_candidates if p.exists()), None)
 
-    # container central
     st.markdown(
         """
         <div style="display:flex;flex-direction:column;justify-content:center;
@@ -71,9 +70,13 @@ hero_placeholder = st.empty()
 with hero_placeholder.container():
     login_hero()
 
-# Formulário de login (API nova usa location)
-name, auth_status, username = authenticator.login("Login", "main")
-
+# Login compatível com 0.4.x (novo) e 0.3.x (antigo)
+try:
+    # API nova (>=0.4)
+    name, auth_status, username = authenticator.login(location="main")
+except Exception:
+    # API antiga (<=0.3.2)
+    name, auth_status, username = authenticator.login("Login", "main")
 
 if auth_status is False:
     st.error("Usuário ou senha inválidos.")
