@@ -72,7 +72,8 @@ with hero_placeholder.container():
     login_hero()
 
 # Formulário de login (API nova usa location)
-name, auth_status, username = authenticator.login(location="main")
+name, auth_status, username = authenticator.login("Login", "main")
+
 
 if auth_status is False:
     st.error("Usuário ou senha inválidos.")
