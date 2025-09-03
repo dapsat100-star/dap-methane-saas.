@@ -1,0 +1,18 @@
+cookie:
+  expiry_days: 7
+  key: PIh4J3lqCrpGr5VxBBVDArTV1d5aNowhMNzOqUFT01I=
+  name: dap_app_cookie
+credentials:
+  usernames:
+    cliente1:
+      email: cliente1@example.com
+      name: cliente1
+      password: $2b$12$vqKJMhQd4v7lE4gkhWTS7eR4/RKWEaIe3.gDy8LyegxcULmMtEFYO
+      role: viewer
+    cliente2:
+      email: cliente2@example.com
+      name: cliente2
+      password: $2b$12$QVbRByfgB2aftFyejS0OXOuM.SHyfmJzSxmkiF0bcd9WDcFubfJsi
+      role: viewer
+preauthorized:
+  emails: []
