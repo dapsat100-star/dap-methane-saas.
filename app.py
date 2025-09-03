@@ -47,7 +47,7 @@ def find_stats_page() -> Path | None:
 # --------------------------------------------------------------------------
 def login_hero():
     logo_candidates = [
-        Path("daplogo_upscaled.png"),
+        Path("dapatlas.jpeg"),
         Path("assets/logo.png"),
         Path(__file__).parent / "dapatlas.jpeg",
         Path(__file__).parent / "dapatlas.jepg",
@@ -65,7 +65,7 @@ def login_hero():
     if logo_path:
         st.image(Image.open(logo_path), width=220)
     else:
-        st.warning("Logo não encontrado (envie 'daplogo_upscaled.png' na raiz ou 'assets/logo.png').")
+        st.warning("Logo não encontrado (envie 'dapatlas.jpeg' na raiz ou 'assets/logo.png').")
 
     st.markdown(
         """
