@@ -50,7 +50,7 @@ def login_hero():
         Path("daplogo_upscaled.png"),
         Path("assets/logo.png"),
         Path(__file__).parent / "dapatlas.jpeg",
-        Path(__file__).parent / "assets/logo.png",
+        Path(__file__).parent / "dapatlas.jepg",
     ]
     logo_path = next((p for p in logo_candidates if p.exists()), None)
 
