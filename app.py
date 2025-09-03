@@ -28,7 +28,7 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days'],
 )
 
-name, auth_status, username = authenticator.login("Login", "sidebar")
+name, auth_status, username = authenticator.login("Login", "unrendered")
 
 if auth_status is False:
     st.error("Usuário ou senha inválidos.")
