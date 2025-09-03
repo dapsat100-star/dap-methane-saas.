@@ -8,12 +8,17 @@ import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
+# --------------------------------------------------------------------------
+# Configuração básica
+# --------------------------------------------------------------------------
 st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
 load_dotenv()
 
 PAGES_DIR = Path("pages")
 
-# -------- util: localizar a página de estatísticas --------
+# --------------------------------------------------------------------------
+# Util: localizar a página de estatísticas de forma tolerante a nomes
+# --------------------------------------------------------------------------
 CANDIDATE_NAMES = [
     "1_📊_Estatisticas_Gerais.py",
     "1_Estatisticas_Gerais.py",
@@ -23,22 +28,23 @@ CANDIDATE_NAMES = [
     "estatisticas_gerais.py",
 ]
 def find_stats_page() -> Path | None:
-    """Tenta achar a página de Estatísticas, tolerando nomes diferentes/sem emoji."""
     if not PAGES_DIR.exists():
         return None
-    # 1) match por nomes candidatos
+    # 1) nomes “padrão”
     for name in CANDIDATE_NAMES:
         p = PAGES_DIR / name
         if p.exists():
             return p
-    # 2) fallback: qualquer .py que contenha 'estat' no nome
+    # 2) qualquer arquivo que contenha “estat”
     for p in PAGES_DIR.glob("*.py"):
         if "estat" in p.name.lower():
             return p
-    # 3) último recurso: a primeira página encontrada
-    any_page = next(PAGES_DIR.glob("*.py"), None)
-    return any_page
+    # 3) fallback: primeira página encontrada
+    return next(PAGES_DIR.glob("*.py"), None)
 
+# --------------------------------------------------------------------------
+# Tela hero (logo + título) só no login
+# --------------------------------------------------------------------------
 def login_hero():
     logo_candidates = [
         Path("daplogo_upscaled.png"),
@@ -53,12 +59,14 @@ def login_hero():
         <div style="display:flex;flex-direction:column;justify-content:center;
                     align-items:center;height:60vh;text-align:center;">
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
+
     if logo_path:
         st.image(Image.open(logo_path), width=220)
     else:
         st.warning("Logo não encontrado (envie 'daplogo_upscaled.png' na raiz ou 'assets/logo.png').")
+
     st.markdown(
         """
             <h1 style="margin-top:16px;font-size:28px;color:#003366;">
@@ -66,10 +74,12 @@ def login_hero():
             </h1>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-# -------- autenticação --------
+# --------------------------------------------------------------------------
+# Autenticação (streamlit-authenticator)
+# --------------------------------------------------------------------------
 with open("auth_config.yaml") as f:
     config = yaml.load(f, Loader=SafeLoader)
 
@@ -80,11 +90,12 @@ authenticator = stauth.Authenticate(
     config["cookie"]["expiry_days"],
 )
 
+# Mostra o hero antes do login
 hero_placeholder = st.empty()
 with hero_placeholder.container():
     login_hero()
 
-# compat nova/antiga
+# Compat: tenta API nova (>=0.4) e cai para antiga (<=0.3.2)
 try:
     name, auth_status, username = authenticator.login(location="main")
 except Exception:
@@ -95,28 +106,39 @@ if auth_status is False:
 elif auth_status is None:
     st.info("Por favor, faça login para continuar.")
 elif auth_status:
+    # remove o hero ao autenticar
     hero_placeholder.empty()
-    st.sidebar.success(f"Logado como: {name}")
-    authenticator.logout("Sair", "sidebar")
 
-    # ---------- redirecionar com segurança ----------
+    # Sidebar: usuário + logout
+    st.sidebar.success(f"Logado como: {name}")
+    try:
+        # versões novas podem aceitar apenas location=
+        authenticator.logout(location="sidebar")
+    except Exception:
+        # versões antigas usam (label, location)
+        authenticator.logout("Sair", "sidebar")
+
+    # ----------------------------------------------------------------------
+    # Redirecionar automaticamente para a página de Estatísticas (se existir)
+    # ----------------------------------------------------------------------
     stats_page = find_stats_page()
     if stats_page and stats_page.exists():
-        # tenta redirecionar; se a versão não tiver switch_page, cai no fallback
+        # tenta redirecionar; se a versão da sua lib não tiver switch_page, cai no fallback
         try:
             st.switch_page(str(stats_page).replace("\\", "/"))
+            st.stop()
         except Exception:
             st.success("Login OK. Clique para ir às Estatísticas Gerais.")
             st.sidebar.page_link(str(stats_page).replace("\\", "/"), label="Ir para Estatísticas Gerais")
-            st.stop()
     else:
         st.warning(
             "Não encontrei a página de **Estatísticas** em `pages/`.\n\n"
-            "Crie um arquivo, por exemplo `pages/1_Estatisticas_Gerais.py`, "
-            "ou renomeie a sua página atual para um desses nomes padrão."
+            "Crie, por exemplo, `pages/1_Estatisticas_Gerais.py`."
         )
 
-    # ---------- (opcional) conexão Snowflake ----------
+    # ----------------------------------------------------------------------
+    # (Opcional) Conexão Snowflake via secrets/variáveis de ambiente
+    # ----------------------------------------------------------------------
     use_sf = st.sidebar.checkbox("Conectar Snowflake (read-only)", value=False)
     if use_sf:
         try:
@@ -133,7 +155,9 @@ elif auth_status:
         except Exception as e:
             st.sidebar.error(f"Falha na conexão Snowflake: {e}")
 
-    # ---------- links seguros na sidebar (aparecem só se existir o arquivo) ----------
+    # ----------------------------------------------------------------------
+    # Links seguros na sidebar (aparecem só se existir o arquivo)
+    # ----------------------------------------------------------------------
     def safe_page_link(path: str, label: str):
         p = Path(path)
         if p.exists():
