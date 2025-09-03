@@ -1,0 +1,5 @@
+report_id,date,time,site,emission_kgph,thumb_path,wind_ms,wind_deg,confidence,base_image,resolution_m,delta_hours
+01D,2024-08-26,10:28,site 2,80,assets/thumb_01D.jpg,2.0,85,Alto,BlackSky,0.35,4
+02D,2024-07-25,11:13,site 2,125,assets/thumb_02D.jpg,3.1,120,Médio,BlackSky,0.35,5
+03D,2024-06-23,10:28,site 2,125,assets/thumb_03D.jpg,1.6,95,Alto,BlackSky,0.35,4
+04D,2024-04-21,10:28,site 2,125,assets/thumb_04D.jpg,2.2,70,Baixo,BlackSky,0.35,6
