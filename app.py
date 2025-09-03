@@ -14,10 +14,21 @@ import streamlit_authenticator as stauth
 st.set_page_config(page_title="Plataforma de Metano OGMP 2.0 - L5", layout="wide")
 load_dotenv()
 
+# ---- CSS: esconder cabeçalho superior (Share/Star/GitHub/•••) ----
+st.markdown(
+    """
+    <style>
+    header[data-testid="stHeader"] { display: none; }
+    div[data-testid="stToolbar"]   { display: none !important; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 PAGES_DIR = Path("pages")
 
 # -----------------------------------------------------------------------------
-# Util: localizar a página de estatísticas de forma tolerante a nomes
+# Util: localizar a página de estatísticas tolerando nomes
 # -----------------------------------------------------------------------------
 CANDIDATE_NAMES = [
     "1_📊_Estatisticas_Gerais.py",
@@ -39,9 +50,7 @@ def find_stats_page() -> Path | None:
             return p
     return next(PAGES_DIR.glob("*.py"), None)
 
-# -----------------------------------------------------------------------------
-# CSS: mostrar/ocultar o nav de páginas na sidebar
-# -----------------------------------------------------------------------------
+# ---- CSS: mostrar/ocultar o nav de páginas na sidebar ----
 def _set_nav_visibility(show: bool):
     st.markdown(
         f"""
@@ -59,9 +68,9 @@ def _set_nav_visibility(show: bool):
 # -----------------------------------------------------------------------------
 def login_hero():
     logo_candidates = [
-        Path("dapatals.jpeg"),
+        Path("daplogo_upscaled.png"),
         Path("assets/logo.png"),
-        Path(__file__).parent / "dapatlas.jpeg",
+        Path(__file__).parent / "daplogo_upscaled.png",
         Path(__file__).parent / "assets/logo.png",
     ]
     logo_path = next((p for p in logo_candidates if p.exists()), None)
@@ -128,9 +137,9 @@ elif auth_status:
     # Sidebar: usuário + logout
     st.sidebar.success(f"Logado como: {name}")
     try:
-        authenticator.logout(location="sidebar")       # versões novas
+        authenticator.logout(location="sidebar")     # versões novas
     except Exception:
-        authenticator.logout("Sair", "sidebar")        # versões antigas
+        authenticator.logout("Sair", "sidebar")      # versões antigas
 
     # ----------------------------------------------------------------------
     # Redirecionar automaticamente para a página de Estatísticas (se existir)
@@ -142,8 +151,7 @@ elif auth_status:
             st.stop()
         except Exception:
             st.success("Login OK. Clique para ir às Estatísticas Gerais.")
-            if stats_page.exists():
-                st.sidebar.page_link(str(stats_page).replace("\\", "/"), label="Ir para Estatísticas Gerais")
+            st.sidebar.page_link(str(stats_page).replace("\\", "/"), label="Ir para Estatísticas Gerais")
     else:
         st.warning(
             "Não encontrei a página de **Estatísticas** em `pages/`.\n\n"
