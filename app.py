@@ -211,8 +211,19 @@ with left:
 
 with right:
     st.markdown(f'<div class="login-card"><div class="login-title">{t["secure_access"]}</div>', unsafe_allow_html=True)
-    # assinatura nova do login
-    name, auth_status, username = authenticator.login("Acesso", location="main")
+    
+    # ===== Login compatível com múltiplas versões =====
+    try:
+        # Versões que aceitam só posicional
+        name, auth_status, username = authenticator.login("Acesso", "main")
+    except TypeError:
+        try:
+            # Versões que aceitam keyword
+            name, auth_status, username = authenticator.login("Acesso", location="main")
+        except Exception:
+            # Fallback
+            name, auth_status, username = authenticator.login("Login", "main")
+    
     st.markdown("</div>", unsafe_allow_html=True)
 
 _set_nav_visibility(bool(st.session_state.get("authentication_status")))
@@ -317,7 +328,6 @@ st.markdown("""
       el.style.display = 'none'; el.style.visibility = 'hidden';
       el.style.opacity = '0'; el.style.pointerEvents = 'none';
     }));
-    // Busca por texto
     const killByText = (needle) => {
       document.querySelectorAll('a, div, footer, span, p, section').forEach(el => {
         const t = (el.innerText || '').trim().toLowerCase();
