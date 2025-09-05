@@ -27,7 +27,7 @@ st.set_page_config(
 load_dotenv()
 
 # =============================================================================
-# Forçar embed=true (sem API experimental)
+# Forçar embed=true com JS
 # =============================================================================
 st.markdown(
     """
@@ -211,10 +211,8 @@ with left:
 
 with right:
     st.markdown(f'<div class="login-card"><div class="login-title">{t["secure_access"]}</div>', unsafe_allow_html=True)
-    try:
-        name, auth_status, username = authenticator.login(location="main")
-    except Exception:
-        name, auth_status, username = authenticator.login("Login", "main")
+    # assinatura nova do login
+    name, auth_status, username = authenticator.login("Acesso", location="main")
     st.markdown("</div>", unsafe_allow_html=True)
 
 _set_nav_visibility(bool(st.session_state.get("authentication_status")))
@@ -289,37 +287,53 @@ st.markdown(
 )
 
 # =============================================================================
-# CSS extra (fallback para esconder "Manage app"/badges)
+# Bloco robusto para esconder "Built with Streamlit" e Manage app
 # =============================================================================
 st.markdown("""
 <style>
-footer, [data-testid="stFooter"]{display:none !important;visibility:hidden !important;}
-.stApp a[href*="streamlit.io"], .stApp a[href*="share.streamlit.io"],
-.stApp a[href*="cloud"], .stApp a[href*="manage"],
-.stApp a[aria-label*="Manage app"], .stApp a[title*="Manage app"]{
-  display:none !important; visibility:hidden !important; pointer-events:none !important;
+footer, [data-testid="stFooter"], .section-footer,
+.viewerBadge_container__, .viewerBadge_link__,
+[data-testid="stStatusWidget"], [data-testid="stDecoration"],
+div[class*="stDeployButton"], div[class*="floating"] {
+  display: none !important; visibility: hidden !important; opacity: 0 !important;
+  pointer-events: none !important;
 }
-div[class*="stDeployButton"], [data-testid="stStatusWidget"], [data-testid="stDecoration"]{
-  display:none !important; visibility:hidden !important; pointer-events:none !important;
-}
-</style>
-""", unsafe_allow_html=True)
-st.markdown("""
-<style>
-footer, [data-testid="stFooter"] {
-    display: none !important;
-    visibility: hidden !important;
-}
-</style>
-""", unsafe_allow_html=True)
-st.markdown("""
-<style>
-/* Oculta o rodapé padrão "Built with Streamlit" */
-footer {display: none !important; visibility: hidden !important;}
-[data-testid="stFooter"] {display: none !important; visibility: hidden !important;}
-.section-footer {display: none !important; visibility: hidden !important;}
-.viewerBadge_container__ {display: none !important; visibility: hidden !important;}
-.viewerBadge_link__ {display: none !important; visibility: hidden !important;}
+html, body, .stApp { padding-bottom: 0 !important; margin-bottom: 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<script>
+(function () {
+  const hideStreamlitBranding = () => {
+    const selectors = [
+      'footer','[data-testid="stFooter"]','.section-footer',
+      '.viewerBadge_container__','.viewerBadge_link__',
+      '[data-testid="stStatusWidget"]','[data-testid="stDecoration"]',
+      'div[class*="stDeployButton"]','div[class*="floating"]',
+      'a[title="Manage app"]','a[aria-label="Manage app"]','button[title="Manage app"]'
+    ];
+    selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => {
+      el.style.display = 'none'; el.style.visibility = 'hidden';
+      el.style.opacity = '0'; el.style.pointerEvents = 'none';
+    }));
+    // Busca por texto
+    const killByText = (needle) => {
+      document.querySelectorAll('a, div, footer, span, p, section').forEach(el => {
+        const t = (el.innerText || '').trim().toLowerCase();
+        if (t && (t.includes(needle))) {
+          const c = el.closest('footer') || el.parentElement || el;
+          c.style.display = 'none'; c.style.visibility = 'hidden';
+          c.style.opacity = '0'; c.style.pointerEvents = 'none';
+        }
+      });
+    };
+    killByText('built with streamlit');
+    killByText('made with streamlit');
+  };
+  hideStreamlitBranding();
+  const mo = new MutationObserver(hideStreamlitBranding);
+  mo.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+""", unsafe_allow_html=True)
