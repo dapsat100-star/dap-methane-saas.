@@ -1,6 +1,9 @@
 # app.py
 # -*- coding: utf-8 -*-
 
+# =============================================================================
+# Imports (precisam vir antes de usar `st`)
+# =============================================================================
 import os
 from pathlib import Path
 from typing import Optional
@@ -13,15 +16,27 @@ from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
 # =============================================================================
-# Configuração básica
+# Config inicial — deve ser o primeiro comando do Streamlit
 # =============================================================================
 st.set_page_config(
     page_title="Plataforma de Metano OGMP 2.0 - L5",
-    page_icon="assets/favicon.png",     # coloque um PNG 32x32 em assets/
+    page_icon="assets/favicon.png",     # PNG 32x32 em assets/
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 load_dotenv()
+
+# =============================================================================
+# Forçar modo embed para remover “Manage app” no Streamlit Cloud
+# (colocado DEPOIS do set_page_config p/ seguir a recomendação do Streamlit)
+# =============================================================================
+try:
+    # Streamlit >= 1.30 (st.query_params dict-like)
+    if st.query_params.get("embed") != "true":
+        st.query_params["embed"] = "true"  # provoca 1 recarregamento
+except Exception:
+    # Compat c/ versões antigas
+    st.experimental_set_query_params(embed="true")
 
 # =============================================================================
 # Estilos globais / acabamento
@@ -225,6 +240,7 @@ if auth_status:
     else:
         st.warning(t["stats_missing"])
 
+    # (Opcional) Conexão Snowflake
     use_sf = st.sidebar.checkbox(t["sf_connect"], value=False)
     if use_sf:
         try:
@@ -241,6 +257,7 @@ if auth_status:
         except Exception as e:
             st.sidebar.error(f'{t["sf_err"]}: {e}')
 
+    # Links seguros
     def safe_page_link(path: str, label: str) -> None:
         p = Path(path)
         if p.exists():
@@ -267,65 +284,18 @@ st.markdown(
 )
 
 # =============================================================================
-# Forçar esconder rodapé nativo do Streamlit + "Manage app"
-# =============================================================================
-st.markdown(
-    """
-    <style>
-    footer {visibility: hidden !important;}
-    a[href*="streamlit.io/cloud"] {display: none !important;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-# =============================================================================
-# Remover de vez rodapé/selos/botões do Streamlit Cloud (super agressivo)
+# (Opcional) CSS extra para esconder variações do “Manage app”/badges
 # =============================================================================
 st.markdown("""
 <style>
-/* 1) Rodapés/selos clássicos */
-footer, 
-[data-testid="stFooter"],
-.viewerBadge_container__ /* classes antigas */,
-.viewerBadge_link__      /* classes antigas */ { 
-  display: none !important; 
-  visibility: hidden !important; 
-  opacity: 0 !important; 
+footer, [data-testid="stFooter"]{display:none !important;visibility:hidden !important;}
+.stApp a[href*="streamlit.io"], .stApp a[href*="share.streamlit.io"],
+.stApp a[href*="cloud"], .stApp a[href*="manage"],
+.stApp a[aria-label*="Manage app"], .stApp a[title*="Manage app"]{
+  display:none !important; visibility:hidden !important; pointer-events:none !important;
 }
-
-/* 2) “Manage app” e links do Cloud (variantes) */
-.stApp a[href*="streamlit.io"], 
-.stApp a[href*="share.streamlit.io"],
-.stApp a[href*="cloud"], 
-.stApp a[href*="manage"],
-.stApp a[aria-label*="Manage app"],
-.stApp a[title*="Manage app"] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
-/* 3) Widgets/flutuantes de status/deploy */
-[data-testid="stStatusWidget"],
-[data-testid="stDecoration"],
-button[title*="Manage app"],
-div[class*="stDeployButton"],
-div[class*="floating"] a[href*="streamlit.io"] {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
-/* 4) Qualquer container que contenha link do Cloud no rodapé (browsers modernos) */
-footer:has(a[href*="streamlit.io"]),
-footer:has(a[href*="share.streamlit.io"]),
-footer:has(a[href*="cloud"]) {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+div[class*="stDeployButton"], [data-testid="stStatusWidget"], [data-testid="stDecoration"]{
+  display:none !important; visibility:hidden !important; pointer-events:none !important;
 }
 </style>
 """, unsafe_allow_html=True)
