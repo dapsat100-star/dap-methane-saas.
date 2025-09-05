@@ -83,6 +83,32 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# =============================================================================
+# Fundo gradiente espacial (default) ou imagem se existir
+# =============================================================================
+bg_path = Path("assets/fundo.jpeg")
+if bg_path.exists():
+    bg_url = str(bg_path).replace("\\", "/")
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background: url("{bg_url}") no-repeat center center fixed;
+        background-size: cover;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <style>
+    .stApp {
+        background: radial-gradient(circle at top left, #001220, #003366, #0a2540);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# =============================================================================
+# Variáveis globais
+# =============================================================================
 PAGES_DIR = Path("pages")
 APP_VERSION = os.getenv("APP_VERSION", "v1.0.0")
 ENV = os.getenv("APP_ENV", "producao").lower()
