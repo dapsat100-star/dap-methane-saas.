@@ -278,3 +278,54 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+# =============================================================================
+# Remover de vez rodapé/selos/botões do Streamlit Cloud (super agressivo)
+# =============================================================================
+st.markdown("""
+<style>
+/* 1) Rodapés/selos clássicos */
+footer, 
+[data-testid="stFooter"],
+.viewerBadge_container__ /* classes antigas */,
+.viewerBadge_link__      /* classes antigas */ { 
+  display: none !important; 
+  visibility: hidden !important; 
+  opacity: 0 !important; 
+}
+
+/* 2) “Manage app” e links do Cloud (variantes) */
+.stApp a[href*="streamlit.io"], 
+.stApp a[href*="share.streamlit.io"],
+.stApp a[href*="cloud"], 
+.stApp a[href*="manage"],
+.stApp a[aria-label*="Manage app"],
+.stApp a[title*="Manage app"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 3) Widgets/flutuantes de status/deploy */
+[data-testid="stStatusWidget"],
+[data-testid="stDecoration"],
+button[title*="Manage app"],
+div[class*="stDeployButton"],
+div[class*="floating"] a[href*="streamlit.io"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 4) Qualquer container que contenha link do Cloud no rodapé (browsers modernos) */
+footer:has(a[href*="streamlit.io"]),
+footer:has(a[href*="share.streamlit.io"]),
+footer:has(a[href*="cloud"]) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
