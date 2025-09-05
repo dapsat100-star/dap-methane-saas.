@@ -89,7 +89,10 @@ st.markdown(
 # =============================================================================
 # Fundo azul névoa (default) ou imagem se existir
 # =============================================================================
-bg_path = Path("assets/fundo.jpeg")
+# procura primeiro na raiz, depois em assets/
+bg_candidates = [Path("fundo.jpeg"), Path("fundo.jpg"), Path("fundo.png"), Path("assets/fundo.jpeg")]
+bg_path = next((p for p in bg_candidates if p.exists()), None)
+
 if bg_path.exists():
     bg_url = str(bg_path).replace("\\", "/")
     st.markdown(f"""
