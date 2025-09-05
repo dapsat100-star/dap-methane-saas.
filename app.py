@@ -1,13 +1,3 @@
-# Força modo embed (remove chrome/rodapé nativo do Streamlit Cloud)
-try:
-    # Streamlit >= 1.30
-    if st.query_params.get("embed") != "true":
-        st.query_params["embed"] = "true"  # recarrega 1x
-except Exception:
-    # Compatibilidade com versões antigas
-    st.experimental_set_query_params(embed="true")
-
-
 # app.py
 # -*- coding: utf-8 -*-
 
