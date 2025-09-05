@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # =============================================================================
-# Imports (precisam vir antes de usar `st`)
+# Imports
 # =============================================================================
 import os
 from pathlib import Path
@@ -16,7 +16,7 @@ from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
 # =============================================================================
-# Config inicial — deve ser o primeiro comando do Streamlit
+# Config inicial
 # =============================================================================
 st.set_page_config(
     page_title="Plataforma de Metano OGMP 2.0 - L5",
@@ -27,30 +27,36 @@ st.set_page_config(
 load_dotenv()
 
 # =============================================================================
-# Forçar modo embed para remover “Manage app” no Streamlit Cloud
-# (colocado DEPOIS do set_page_config p/ seguir a recomendação do Streamlit)
+# Forçar embed=true (sem API experimental)
 # =============================================================================
-try:
-    # Streamlit >= 1.30 (st.query_params dict-like)
-    if st.query_params.get("embed") != "true":
-        st.query_params["embed"] = "true"  # provoca 1 recarregamento
-except Exception:
-    # Compat c/ versões antigas
-    st.experimental_set_query_params(embed="true")
+st.markdown(
+    """
+    <script>
+    (function () {
+      try {
+        var url = new URL(window.location.href);
+        if (url.hostname.endsWith("streamlit.app") && url.searchParams.get("embed") !== "true") {
+          url.searchParams.set("embed", "true");
+          window.location.replace(url.toString());
+        }
+      } catch (e) { }
+    })();
+    </script>
+    """,
+    unsafe_allow_html=True,
+)
 
 # =============================================================================
-# Estilos globais / acabamento
+# Estilos globais
 # =============================================================================
 st.markdown(
     """
     <style>
-    /* Esconder cabeçalho/toolbar nativos */
     header[data-testid="stHeader"]{display:none;}
     div[data-testid="stToolbar"]{display:none !important;}
     #MainMenu{visibility:hidden;}
     button[kind="header"]{display:none !important;}
 
-    /* Paleta e componentes */
     :root{
       --dap-primary:#003366;
       --dap-accent:#0ea5e9;
@@ -83,7 +89,7 @@ ENV = os.getenv("APP_ENV", "producao").lower()
 ENV_LABEL = "Produção" if ENV == "producao" else "Homologação"
 
 # =============================================================================
-# i18n (PT/EN) — toggle de idioma
+# i18n (PT/EN)
 # =============================================================================
 if "lang" not in st.session_state:
     st.session_state.lang = "pt"
@@ -129,7 +135,7 @@ TXT = {
 t = TXT[st.session_state.lang]
 
 # =============================================================================
-# Util: localizar a página de Estatísticas
+# Util
 # =============================================================================
 CANDIDATE_NAMES = [
     "1_📊_Estatisticas_Gerais.py",
@@ -167,7 +173,7 @@ def _set_nav_visibility(show: bool) -> None:
     )
 
 # =============================================================================
-# Autenticação (streamlit-authenticator)
+# Autenticação
 # =============================================================================
 def build_authenticator() -> stauth.Authenticate:
     with open("auth_config.yaml", "r", encoding="utf-8") as f:
@@ -182,7 +188,7 @@ def build_authenticator() -> stauth.Authenticate:
 authenticator = build_authenticator()
 
 # =============================================================================
-# Tela inicial — Logo + Login lado a lado
+# Tela inicial
 # =============================================================================
 left, right = st.columns([1, 1], gap="large")
 
@@ -240,7 +246,7 @@ if auth_status:
     else:
         st.warning(t["stats_missing"])
 
-    # (Opcional) Conexão Snowflake
+    # Snowflake (opcional)
     use_sf = st.sidebar.checkbox(t["sf_connect"], value=False)
     if use_sf:
         try:
@@ -257,7 +263,6 @@ if auth_status:
         except Exception as e:
             st.sidebar.error(f'{t["sf_err"]}: {e}')
 
-    # Links seguros
     def safe_page_link(path: str, label: str) -> None:
         p = Path(path)
         if p.exists():
@@ -271,7 +276,7 @@ if auth_status:
     st.markdown(f'> {t["nav_hint"]}')
 
 # =============================================================================
-# Rodapé fixo customizado
+# Rodapé customizado
 # =============================================================================
 st.markdown(
     f"""
@@ -284,7 +289,7 @@ st.markdown(
 )
 
 # =============================================================================
-# (Opcional) CSS extra para esconder variações do “Manage app”/badges
+# CSS extra (fallback para esconder "Manage app"/badges)
 # =============================================================================
 st.markdown("""
 <style>
