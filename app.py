@@ -64,8 +64,11 @@ st.markdown(
       --card-shadow:0 8px 30px rgba(0,0,0,.08);
     }
     .login-card{
-      padding:28px;border-radius:18px;background:#fff;
-      box-shadow:var(--card-shadow);border:1px solid var(--border);
+      padding:28px;border-radius:18px;
+      background: rgba(255,255,255,0.85) !important;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(180,200,255,0.6) !important;
+      box-shadow: 0 8px 28px rgba(80,120,200,.15) !important;
     }
     .login-title{
       font-size:18px;margin:0 0 16px 0;color:#0f172a;font-weight:600
@@ -84,7 +87,7 @@ st.markdown(
 )
 
 # =============================================================================
-# Fundo gradiente espacial (default) ou imagem se existir
+# Fundo azul névoa (default) ou imagem se existir
 # =============================================================================
 bg_path = Path("assets/fundo.jpeg")
 if bg_path.exists():
@@ -101,7 +104,7 @@ else:
     st.markdown("""
     <style>
     .stApp {
-        background: radial-gradient(circle at top left, #001220, #003366, #0a2540);
+        background: linear-gradient(180deg, #eef5ff 0%, #dbeaff 40%, #c6ddff 100%);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -364,3 +367,4 @@ st.markdown("""
 })();
 </script>
 """, unsafe_allow_html=True)
+
