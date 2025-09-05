@@ -34,7 +34,6 @@ st.markdown(
     div[data-testid="stToolbar"]{display:none !important;}
     #MainMenu{visibility:hidden;}
     button[kind="header"]{display:none !important;}
-    a[href*="manage"]{display:none !important;} /* "Manage app" */
 
     /* Paleta e componentes */
     :root{
@@ -168,7 +167,7 @@ def build_authenticator() -> stauth.Authenticate:
 authenticator = build_authenticator()
 
 # =============================================================================
-# Tela inicial — Logo + Login lado a lado (sem “brancão”)
+# Tela inicial — Logo + Login lado a lado
 # =============================================================================
 left, right = st.columns([1, 1], gap="large")
 
@@ -186,7 +185,6 @@ with left:
         f'<h1 style="margin-top:12px;font-size:26px;color:var(--dap-primary);">{t["title"]}</h1>',
         unsafe_allow_html=True,
     )
-    # Aviso de confidencialidade antes do login
     if not st.session_state.get("authentication_status"):
         st.info(t["confidential"])
 
@@ -198,10 +196,8 @@ with right:
         name, auth_status, username = authenticator.login("Login", "main")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# Mostrar/ocultar navegação conforme status
 _set_nav_visibility(bool(st.session_state.get("authentication_status")))
 
-# Mensagens de login
 if auth_status is False:
     st.error(t["bad_credentials"])
 elif auth_status is None:
@@ -211,14 +207,12 @@ elif auth_status is None:
 # Área autenticada
 # =============================================================================
 if auth_status:
-    # Sidebar: usuário + logout
     st.sidebar.success(f'{t["logged_as"]}: {name}')
     try:
         authenticator.logout(location="sidebar")
     except Exception:
         authenticator.logout("Sair", "sidebar")
 
-    # Redirecionar para Estatísticas (se existir)
     stats_page = find_stats_page()
     if stats_page and stats_page.exists():
         target = str(stats_page).replace("\\", "/")
@@ -231,7 +225,6 @@ if auth_status:
     else:
         st.warning(t["stats_missing"])
 
-    # (Opcional) Conexão Snowflake
     use_sf = st.sidebar.checkbox(t["sf_connect"], value=False)
     if use_sf:
         try:
@@ -248,7 +241,6 @@ if auth_status:
         except Exception as e:
             st.sidebar.error(f'{t["sf_err"]}: {e}')
 
-    # Links seguros (só aparecem se existir o arquivo)
     def safe_page_link(path: str, label: str) -> None:
         p = Path(path)
         if p.exists():
@@ -262,7 +254,7 @@ if auth_status:
     st.markdown(f'> {t["nav_hint"]}')
 
 # =============================================================================
-# Rodapé fixo (versão/ambiente/suporte)
+# Rodapé fixo customizado
 # =============================================================================
 st.markdown(
     f"""
@@ -270,6 +262,19 @@ st.markdown(
       <div>📦 DAP ATLAS · {APP_VERSION} · Ambiente: {ENV_LABEL}</div>
       <div>🔒 {t["internal_use"]} · <a href="mailto:support@dapsistemas.com">{t["support"]}</a> · <a href="https://example.com/privacidade" target="_blank">{t["privacy"]}</a></div>
     </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# =============================================================================
+# Forçar esconder rodapé nativo do Streamlit + "Manage app"
+# =============================================================================
+st.markdown(
+    """
+    <style>
+    footer {visibility: hidden !important;}
+    a[href*="streamlit.io/cloud"] {display: none !important;}
+    </style>
     """,
     unsafe_allow_html=True,
 )
