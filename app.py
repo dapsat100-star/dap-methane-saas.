@@ -304,3 +304,11 @@ div[class*="stDeployButton"], [data-testid="stStatusWidget"], [data-testid="stDe
 }
 </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+footer, [data-testid="stFooter"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+</style>
+""", unsafe_allow_html=True)
