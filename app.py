@@ -312,3 +312,14 @@ footer, [data-testid="stFooter"] {
 }
 </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* Oculta o rodapé padrão "Built with Streamlit" */
+footer {display: none !important; visibility: hidden !important;}
+[data-testid="stFooter"] {display: none !important; visibility: hidden !important;}
+.section-footer {display: none !important; visibility: hidden !important;}
+.viewerBadge_container__ {display: none !important; visibility: hidden !important;}
+.viewerBadge_link__ {display: none !important; visibility: hidden !important;}
+</style>
+""", unsafe_allow_html=True)
+
