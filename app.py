@@ -212,17 +212,8 @@ with left:
 with right:
     st.markdown(f'<div class="login-card"><div class="login-title">{t["secure_access"]}</div>', unsafe_allow_html=True)
     
-    # ===== Login compatível com múltiplas versões =====
-    try:
-        # Versões que aceitam só posicional
-        name, auth_status, username = authenticator.login("Acesso", "main")
-    except TypeError:
-        try:
-            # Versões que aceitam keyword
-            name, auth_status, username = authenticator.login("Acesso", location="main")
-        except Exception:
-            # Fallback
-            name, auth_status, username = authenticator.login("Login", "main")
+    # ===== Login (versão nova, sem form_name) =====
+    name, auth_status, username = authenticator.login("main")
     
     st.markdown("</div>", unsafe_allow_html=True)
 
