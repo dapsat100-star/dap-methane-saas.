@@ -94,26 +94,43 @@ button[kind="header"]{display:none!important;}
 .btn-ghost{display:inline-block; padding:10px 16px; border-radius:12px;
   background:transparent; color:#cfe2ff; border:1px solid rgba(255,255,255,.28); text-decoration:none;}
 
-.login-card{
-  padding:28px; border-radius:var(--radius);
-  background: var(--card);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  border:1px solid var(--border); box-shadow: var(--shadow);
-  color:#0f172a;
-}
-.login-title{font-size:18px; margin:0 0 14px 0; color:#eef3ff; font-weight:700}
+/* Nota "Acesso restrito..." padrão (pode ser sobrescrita abaixo) */
+.login-note{ font-size:12px; color:#e8f0ff; opacity:.95; }
 
-/* ========= Labels e textos brancos/visíveis ========= */
-.lang-row, .lang-row * { color:#ffffff !important; }          /* toggle "English" */
-#login label, #login [data-testid="stWidgetLabel"]{
-  display:inline-block !important; visibility:visible !important; opacity:1 !important;
-  color:#ffffff !important; font-weight:600 !important;
+/* ===== FUNDO NO BLOCO DO AUTHENTICATOR (card branco automático) =====
+   Seleciona o container que CONTÉM um input de senha e aplica um card claro.
+   Isso funciona mesmo que o form não esteja dentro do seu <div id="login">. */
+div[data-testid="stVerticalBlock"]:has(input[type="password"]) {
+  background: #ffffffF2 !important; /* quase sólido */
+  color: #0f172a !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--shadow) !important;
+  padding: 24px !important;
 }
-#login input::placeholder { color:#cfe1ff !important; opacity:1; }
-.login-note { color:#e8f0ff !important; opacity:.95; }
-/* ==================================================== */
 
+/* Labels e textos dentro do card do authenticator (escuros para contrastar com fundo branco) */
+div[data-testid="stVerticalBlock"]:has(input[type="password"]) label,
+div[data-testid="stVerticalBlock"]:has(input[type="password"]) [data-testid="stWidgetLabel"],
+div[data-testid="stVerticalBlock"]:has(input[type="password"]) [data-testid="stWidgetLabel"] * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-weight: 600 !important;
+}
+
+/* Placeholders dos inputs dentro do card claro */
+div[data-testid="stVerticalBlock"]:has(input[type="password"]) input::placeholder {
+  color:#6b7280 !important; opacity:1 !important;
+}
+
+/* Título do card acima do form pode ficar claro no tema escuro */
+.login-title{ color:#eef3ff; font-weight:700 }
+
+/* Toggle "English" em branco no topo da página */
+.lang-row, .lang-row * { color:#ffffff !important; }
 .lang-row{position:absolute; top:16px; left:16px; opacity:.95}
+/* ====================================================================== */
 
 .footer{
   position:fixed; left:0; right:0; bottom:0; padding:8px 16px;
@@ -180,46 +197,14 @@ with left:
     st.markdown(f"<div class='cta-row'><a class='btn-primary' href='#login'>{t['cta_login']}</a><a class='btn-ghost' href='mailto:support@dapsistemas.com'>{t['cta_about']}</a></div>", unsafe_allow_html=True)
 
 with right:
-    st.markdown(f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
-
-    # Labels PT; se a versão suportar, usa fields; senão, fallback mantém rótulos brancos via CSS
+    st.markdown(f"<div id='login' class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
+    # Labels PT (se a sua versão suportar 'fields', usa; senão, CSS acima assume)
     fields = {"Form name": "", "Username": "Usuário", "Password": "Senha", "Login": "Entrar"}
     try:
         name, auth_status, username = authenticator.login("main", fields=fields)
     except TypeError:
         name, auth_status, username = authenticator.login("main")
-
-    st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
-    # --- forçar cores (visíveis) dos rótulos e textos do login ---
-st.markdown("""
-<style>
-/* rótulo do toggle "English" */
-.lang-row, .lang-row * { color:#ffffff !important; }
-
-/* rótulos "Usuário" e "Senha" */
-#login label,
-#login [data-testid="stWidgetLabel"],
-#login [data-testid="stWidgetLabel"] * {
-  color:#ffffff !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  font-weight:600 !important;
-}
-
-/* texto de ajuda abaixo do card */
-#login .login-note { color:#e8f0ff !important; opacity:.95 !important; }
-
-/* placeholders dos campos (se aparecerem) */
-#login input::placeholder { color:#cfe1ff !important; opacity:1 !important; }
-
-/* se ainda não aparecer por alguma classe obscura, descomente a linha abaixo (modo “martelo”)
-#login, #login * { color:#ffffff !important; }
-*/
-</style>
-""", unsafe_allow_html=True)
-
-
-
+    st.markdown(f"<div class='login-note'>{t['confidential']}</div>", unsafe_allow_html=True)
 
 # -------------------- Pós-login --------------------
 if 'auth_status' in locals():
@@ -245,3 +230,8 @@ st.markdown(f"""
        <a href="https://example.com/privacidade" target="_blank">{t["privacy"]}</a></div>
 </div>
 """, unsafe_allow_html=True)
+
+
+
+
+
