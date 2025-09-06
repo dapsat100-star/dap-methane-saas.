@@ -20,7 +20,7 @@ st.set_page_config(
 load_dotenv()
 
 # ------------------------------------------------------------
-# CSS: TUDO branco, TODO texto preto
+# CSS: fundo branco, texto preto (limpo)
 # ------------------------------------------------------------
 st.markdown("""
 <style>
@@ -30,57 +30,55 @@ div[data-testid="stToolbar"]{display:none!important;}
 #MainMenu{visibility:hidden;}
 button[kind="header"]{display:none!important;}
 
-/* fundo absolutamente branco em tudo */
+/* fundo e texto padrão */
 html, body, .stApp, [data-testid="stAppViewContainer"],
 .block-container, [data-testid="stSidebar"], header, footer {
   background: #ffffff !important;
   color: #111111 !important;
 }
-
-/* se ficou algum overlay antigo */
+/* kill qualquer overlay antigo */
 .stApp::before, .stApp::after, body::before, body::after { content:none !important; background:none !important; }
 
 /* todo texto preto por padrão */
 * { color:#111111 !important; }
 
-/* links pretos (sublinhados para acessibilidade) */
+/* links pretos (sublinhados) */
 a { color:#111111 !important; text-decoration: underline; }
 
-/* inputs/brancos, borda neutra, texto preto */
+/* inputs: brancos, borda suave, texto preto */
 input, textarea, select, .stTextInput input, .stPassword input {
   background:#ffffff !important; color:#111111 !important;
   border:1px solid #d0d7e2 !important; border-radius:10px !important;
 }
 input::placeholder, textarea::placeholder { color:#444444 !important; opacity:1 !important; }
 
-/* cards e elementos do login */
-.login-card, .login-title {
-  background:#ffffff !important; color:#111111 !important;
-}
+/* card do login simples */
 .login-card{
   padding:24px; border:1px solid #e7e7e7; border-radius:16px;
   box-shadow: 0 8px 24px rgba(0,0,0,.06);
+  background:#ffffff !important;
 }
+.login-title{ font-size:18px; margin:0 0 14px 0; font-weight:700; }
 
-/* bullet list e títulos */
+/* hero area */
 .hero-eyebrow{ display:inline-block; font-size:12px; letter-spacing:.18em;
   text-transform:uppercase; padding:6px 10px; border:1px solid #111; border-radius:999px; }
-.hero-title{ margin:14px 0 8px 0; line-height:1.1; font-size:44px; font-weight:800; }
-.hero-sub{ font-size:16px; color:#111 !important; max-width:640px; }
+.hero-title{ margin:14px 0 8px 0; line-height:1.1; font-size:40px; font-weight:800; }
+.hero-sub{ font-size:16px; max-width:640px; }
 .hero-bullets{ margin:16px 0 24px 0; padding-left:18px; }
 .hero-bullets li{ margin:6px 0; }
 
-/* botões simples brancos com contorno preto */
+/* botões básicos */
 .btn-primary, .btn-ghost{
   display:inline-block; padding:10px 16px; border-radius:10px; text-decoration:none !important;
   background:#ffffff; color:#111111 !important; border:1px solid #111111;
 }
 .cta-row{ display:flex; gap:12px; margin-top:16px }
 
-/* toggle idioma visível/preto */
+/* toggle idioma */
 .lang-row{ position:absolute; top:16px; left:16px; }
 
-/* footer claro com divisória suave */
+/* footer */
 .footer{
   position:fixed; left:0; right:0; bottom:0; padding:8px 16px;
   background:#ffffff; border-top:1px solid #ececec; color:#111111;
@@ -161,7 +159,7 @@ with left:
 
 with right:
     st.markdown(f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
-    # Labels em PT; botão "Entrar"
+    # Campos com rótulos em PT
     fields = {"Form name": "", "Username": "Usuário", "Password": "Senha", "Login": "Entrar"}
     try:
         name, auth_status, username = authenticator.login("main", fields=fields)
@@ -169,8 +167,124 @@ with right:
         name, auth_status, username = authenticator.login("main")
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
 
-# Estado do login
+# ------------------------------------------------------------
+# UX Kit (CSS + JS) — foco, Enter envia, olho senha, CapsLock, lembrar usuário, loading
+# ------------------------------------------------------------
+def apply_ux_enhancements():
+    st.markdown("""
+    <style>
+      .pw-eye {
+        position:absolute; right:10px; top:50%; transform: translateY(-50%);
+        border:0; background:transparent; cursor:pointer; font-size:16px;
+        padding:2px; line-height:1;
+      }
+      .pw-wrap { position:relative; }
+      .caps-hint { margin-top:6px; font-size:12px; color:#d00; }
+      .remember-row {
+        display:flex; align-items:center; gap:8px; font-size:13px;
+        margin:6px 0 10px 2px; color:#111;
+      }
+      .remember-row input[type="checkbox"]{ transform: scale(1.1); }
+      @media (max-width: 780px){ .footer{ position: static; } }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <script>
+    (function(){
+      const root = document.getElementById('login') || document.body;
+
+      function onceReady(fn){
+        let tries = 0;
+        const iv = setInterval(()=>{
+          tries++;
+          const u = root.querySelector('input[type="text"]') || document.querySelector('input[type="text"]');
+          const p = root.querySelector('input[type="password"]') || document.querySelector('input[type="password"]');
+          const btn = root.querySelector('button') || document.querySelector('button[kind="secondary"], button');
+          if ((u || p) && btn){ clearInterval(iv); fn({u,p,btn}); }
+          if (tries > 25) clearInterval(iv);
+        }, 180);
+      }
+
+      onceReady(({u,p,btn})=>{
+        // placeholders
+        if (u && !u.placeholder) u.placeholder = "Usuário";
+        if (p && !p.placeholder) p.placeholder = "Senha";
+
+        // lembrar usuário
+        if (u){
+          const saved = localStorage.getItem('dap_username') || "";
+          if (saved && !u.value) u.value = saved;
+
+          const row = document.createElement('label');
+          row.className = 'remember-row';
+          row.innerHTML = "<input type='checkbox' id='rememberUser'> <span>Lembrar usuário</span>";
+          (u.parentElement?.parentElement || u.parentElement).insertAdjacentElement('afterend', row);
+          const cb = row.querySelector('#rememberUser');
+          cb.checked = !!saved;
+          const store = () => { cb.checked ? localStorage.setItem('dap_username', u.value) : localStorage.removeItem('dap_username'); };
+          u.addEventListener('input', store); cb.addEventListener('change', store);
+        }
+
+        // olho senha + caps lock
+        if (p){
+          if (!p.parentElement.classList.contains('pw-wrap')){
+            p.parentElement.classList.add('pw-wrap');
+          }
+          const eye = document.createElement('button');
+          eye.type = 'button';
+          eye.className = 'pw-eye';
+          eye.setAttribute('aria-label','Mostrar/ocultar senha');
+          eye.textContent = '👁';
+          p.parentElement.appendChild(eye);
+          eye.addEventListener('click', ()=>{ p.type = (p.type === 'password' ? 'text' : 'password'); });
+
+          const hint = document.createElement('div');
+          hint.className = 'caps-hint';
+          hint.textContent = 'Caps Lock ativo';
+          hint.style.display = 'none';
+          p.parentElement.appendChild(hint);
+          p.addEventListener('keyup', (e)=>{ hint.style.display = (e.getModifierState && e.getModifierState('CapsLock')) ? 'block' : 'none'; });
+        }
+
+        // foco
+        (u || p)?.focus();
+
+        // Enter envia
+        [u,p].forEach(el => el && el.addEventListener('keydown', (e)=>{
+          if (e.key === 'Enter'){ btn?.click(); }
+        }));
+
+        // feedback no botão
+        if (btn){
+          btn.addEventListener('click', ()=>{
+            const old = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Entrando…';
+            setTimeout(()=>{ btn.disabled = false; btn.textContent = old; }, 4000);
+          }, { once:false });
+        }
+      });
+    })();
+    </script>
+    """, unsafe_allow_html=True)
+
+# chama o kit após o bloco de login
+apply_ux_enhancements()
+
+# ------------------------------------------------------------
+# Estado do login + toasts
+# ------------------------------------------------------------
 if 'auth_status' in locals():
+    if 'last_auth_status' not in st.session_state:
+        st.session_state.last_auth_status = None
+    if auth_status != st.session_state.last_auth_status:
+        if auth_status is True:
+            st.toast("Login realizado com sucesso. Bem-vindo!", icon="✅")
+        elif auth_status is False:
+            st.toast("Usuário ou senha inválidos.", icon="⚠️")
+        st.session_state.last_auth_status = auth_status
+
     if auth_status is False:
         st.error(t["bad_credentials"])
     elif auth_status is None:
