@@ -20,7 +20,7 @@ st.set_page_config(
 load_dotenv()
 
 # ------------------------------------------------------------
-# CSS: fundo branco, texto preto (limpo)
+# CSS: fundo cinza claro (#f5f5f5), texto preto
 # ------------------------------------------------------------
 st.markdown("""
 <style>
@@ -33,11 +33,15 @@ button[kind="header"]{display:none!important;}
 /* fundo e texto padrão */
 html, body, .stApp, [data-testid="stAppViewContainer"],
 .block-container, [data-testid="stSidebar"], header, footer {
-  background: #ffffff !important;
+  background: #f5f5f5 !important;   /* CINZA CLARO */
   color: #111111 !important;
 }
+
 /* kill qualquer overlay antigo */
-.stApp::before, .stApp::after, body::before, body::after { content:none !important; background:none !important; }
+.stApp::before, .stApp::after, body::before, body::after { 
+  content:none !important; 
+  background:none !important; 
+}
 
 /* todo texto preto por padrão */
 * { color:#111111 !important; }
@@ -47,12 +51,17 @@ a { color:#111111 !important; text-decoration: underline; }
 
 /* inputs: brancos, borda suave, texto preto */
 input, textarea, select, .stTextInput input, .stPassword input {
-  background:#ffffff !important; color:#111111 !important;
-  border:1px solid #d0d7e2 !important; border-radius:10px !important;
+  background:#ffffff !important; 
+  color:#111111 !important;
+  border:1px solid #d0d7e2 !important; 
+  border-radius:10px !important;
 }
-input::placeholder, textarea::placeholder { color:#444444 !important; opacity:1 !important; }
+input::placeholder, textarea::placeholder { 
+  color:#444444 !important; 
+  opacity:1 !important; 
+}
 
-/* card do login simples */
+/* card do login */
 .login-card{
   padding:24px; border:1px solid #e7e7e7; border-radius:16px;
   box-shadow: 0 8px 24px rgba(0,0,0,.06);
@@ -68,7 +77,7 @@ input::placeholder, textarea::placeholder { color:#444444 !important; opacity:1 
 .hero-bullets{ margin:16px 0 24px 0; padding-left:18px; }
 .hero-bullets li{ margin:6px 0; }
 
-/* botões básicos */
+/* botões */
 .btn-primary, .btn-ghost{
   display:inline-block; padding:10px 16px; border-radius:10px; text-decoration:none !important;
   background:#ffffff; color:#111111 !important; border:1px solid #111111;
@@ -81,7 +90,7 @@ input::placeholder, textarea::placeholder { color:#444444 !important; opacity:1 
 /* footer */
 .footer{
   position:fixed; left:0; right:0; bottom:0; padding:8px 16px;
-  background:#ffffff; border-top:1px solid #ececec; color:#111111;
+  background:#f5f5f5; border-top:1px solid #ececec; color:#111111;
   display:flex; justify-content:space-between; align-items:center; font-size:12px; z-index:999;
 }
 
@@ -159,7 +168,6 @@ with left:
 
 with right:
     st.markdown(f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
-    # Campos com rótulos em PT
     fields = {"Form name": "", "Username": "Usuário", "Password": "Senha", "Login": "Entrar"}
     try:
         name, auth_status, username = authenticator.login("main", fields=fields)
@@ -168,7 +176,7 @@ with right:
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
-# UX Kit (CSS + JS) — foco, Enter envia, olho senha, CapsLock, lembrar usuário, loading
+# UX Kit
 # ------------------------------------------------------------
 def apply_ux_enhancements():
     st.markdown("""
@@ -193,7 +201,6 @@ def apply_ux_enhancements():
     <script>
     (function(){
       const root = document.getElementById('login') || document.body;
-
       function onceReady(fn){
         let tries = 0;
         const iv = setInterval(()=>{
@@ -205,17 +212,12 @@ def apply_ux_enhancements():
           if (tries > 25) clearInterval(iv);
         }, 180);
       }
-
       onceReady(({u,p,btn})=>{
-        // placeholders
         if (u && !u.placeholder) u.placeholder = "Usuário";
         if (p && !p.placeholder) p.placeholder = "Senha";
-
-        // lembrar usuário
         if (u){
           const saved = localStorage.getItem('dap_username') || "";
           if (saved && !u.value) u.value = saved;
-
           const row = document.createElement('label');
           row.className = 'remember-row';
           row.innerHTML = "<input type='checkbox' id='rememberUser'> <span>Lembrar usuário</span>";
@@ -225,20 +227,14 @@ def apply_ux_enhancements():
           const store = () => { cb.checked ? localStorage.setItem('dap_username', u.value) : localStorage.removeItem('dap_username'); };
           u.addEventListener('input', store); cb.addEventListener('change', store);
         }
-
-        // olho senha + caps lock
         if (p){
-          if (!p.parentElement.classList.contains('pw-wrap')){
-            p.parentElement.classList.add('pw-wrap');
-          }
+          if (!p.parentElement.classList.contains('pw-wrap')) p.parentElement.classList.add('pw-wrap');
           const eye = document.createElement('button');
-          eye.type = 'button';
-          eye.className = 'pw-eye';
+          eye.type = 'button'; eye.className = 'pw-eye';
           eye.setAttribute('aria-label','Mostrar/ocultar senha');
           eye.textContent = '👁';
           p.parentElement.appendChild(eye);
           eye.addEventListener('click', ()=>{ p.type = (p.type === 'password' ? 'text' : 'password'); });
-
           const hint = document.createElement('div');
           hint.className = 'caps-hint';
           hint.textContent = 'Caps Lock ativo';
@@ -246,21 +242,12 @@ def apply_ux_enhancements():
           p.parentElement.appendChild(hint);
           p.addEventListener('keyup', (e)=>{ hint.style.display = (e.getModifierState && e.getModifierState('CapsLock')) ? 'block' : 'none'; });
         }
-
-        // foco
         (u || p)?.focus();
-
-        // Enter envia
-        [u,p].forEach(el => el && el.addEventListener('keydown', (e)=>{
-          if (e.key === 'Enter'){ btn?.click(); }
-        }));
-
-        // feedback no botão
+        [u,p].forEach(el => el && el.addEventListener('keydown', (e)=>{ if (e.key === 'Enter'){ btn?.click(); }}));
         if (btn){
           btn.addEventListener('click', ()=>{
             const old = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Entrando…';
+            btn.disabled = true; btn.textContent = 'Entrando…';
             setTimeout(()=>{ btn.disabled = false; btn.textContent = old; }, 4000);
           }, { once:false });
         }
@@ -269,11 +256,10 @@ def apply_ux_enhancements():
     </script>
     """, unsafe_allow_html=True)
 
-# chama o kit após o bloco de login
 apply_ux_enhancements()
 
 # ------------------------------------------------------------
-# Estado do login + toasts
+# Estado do login
 # ------------------------------------------------------------
 if 'auth_status' in locals():
     if 'last_auth_status' not in st.session_state:
@@ -284,7 +270,6 @@ if 'auth_status' in locals():
         elif auth_status is False:
             st.toast("Usuário ou senha inválidos.", icon="⚠️")
         st.session_state.last_auth_status = auth_status
-
     if auth_status is False:
         st.error(t["bad_credentials"])
     elif auth_status is None:
