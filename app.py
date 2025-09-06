@@ -67,16 +67,12 @@ st.markdown(
       --radius:20px;
     }
 
-    .stApp{
-      background: linear-gradient(140deg,#0f2d55 0%, #123a6e 45%, #144180 100%);
-      color:#e5eefc;
-    }
     .block-container{padding-top:2.2rem; max-width:1200px;}
 
     .hero-eyebrow{
       display:inline-block; font-size:13px; letter-spacing:.18em; text-transform:uppercase;
       padding:6px 10px; border:1px solid #2a4f86; border-radius:999px;
-      background:rgba(255,255,255,.06);
+      background:rgba(255,255,255,.08); color:#dbeafe;
     }
     .hero-title{margin:14px 0 8px 0; line-height:1.1; font-size:44px; font-weight:800; color:#fff;}
     .hero-sub{font-size:17px; color:#d6e3ff; max-width:600px}
@@ -116,14 +112,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- usar background.png na MESMA pasta ---
+# --- usar background.png com overlay escuro ---
 bg_file = "background.png"
 if Path(bg_file).exists():
     st.markdown(
         f"""
         <style>
         .stApp {{
-          background-image: url('{bg_file}');
+          background: linear-gradient(120deg, rgba(10,25,60,0.92) 0%, rgba(15,40,90,0.88) 50%, rgba(20,50,110,0.92) 100%),
+                      url('{bg_file}');
           background-size: cover;
           background-position: center;
           background-attachment: fixed;
@@ -169,9 +166,6 @@ TXT = {
         "go_stats": "Ir para Estatísticas Gerais",
         "nav_hint": "Use o menu à esquerda para navegar.",
         "confidential": "Acesso restrito. Conteúdo confidencial.",
-        "sf_connect": "Conectar Snowflake",
-        "sf_ok": "Conectado ao Snowflake ✅",
-        "sf_err": "Falha na conexão Snowflake",
         "logged_as": "Logado como",
         "support": "Suporte",
         "privacy": "Privacidade",
@@ -193,9 +187,6 @@ TXT = {
         "go_stats": "Go to General Statistics",
         "nav_hint": "Use the left menu to navigate.",
         "confidential": "Restricted access. Confidential content.",
-        "sf_connect": "Connect Snowflake",
-        "sf_ok": "Connected to Snowflake ✅",
-        "sf_err": "Snowflake connection failed",
         "logged_as": "Signed in as",
         "support": "Support",
         "privacy": "Privacy",
@@ -203,29 +194,6 @@ TXT = {
     },
 }
 t = TXT[st.session_state.lang]
-
-# =============================================================================
-# Utils
-# =============================================================================
-def find_stats_page() -> Optional[Path]:
-    if not PAGES_DIR.exists():
-        return None
-    for p in PAGES_DIR.glob("*.py"):
-        if "estat" in p.name.lower():
-            return p
-    return None
-
-def _set_nav_visibility(show: bool) -> None:
-    st.markdown(
-        f"""
-        <style>
-        div[data-testid="stSidebarNav"] {{
-            display: {"flex" if show else "none"} !important;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 # =============================================================================
 # Autenticação
@@ -280,8 +248,6 @@ with right:
     name, auth_status, username = authenticator.login("main")
     st.markdown(f'<div class="login-note">{t["confidential"]}</div></div>', unsafe_allow_html=True)
 
-_set_nav_visibility(bool(st.session_state.get("authentication_status")))
-
 if auth_status is False:
     st.error(t["bad_credentials"])
 elif auth_status is None:
@@ -290,12 +256,6 @@ elif auth_status is None:
 if auth_status:
     st.sidebar.success(f'{t["logged_as"]}: {name}')
     authenticator.logout(location="sidebar")
-
-    stats_page = find_stats_page()
-    if stats_page:
-        st.sidebar.page_link(str(stats_page), label=t["go_stats"])
-    else:
-        st.warning(t["stats_missing"])
 
 # =============================================================================
 # Rodapé
@@ -309,18 +269,3 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-# =============================================================================
-# Remover branding Streamlit
-# =============================================================================
-st.markdown("""
-<style>
-footer, [data-testid="stFooter"], .section-footer,
-.viewerBadge_container__, .viewerBadge_link__,
-[data-testid="stStatusWidget"], [data-testid="stDecoration"],
-div[class*="stDeployButton"], div[class*="floating"] {
-  display: none !important; visibility: hidden !important; opacity: 0 !important;
-  pointer-events: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
