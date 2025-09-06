@@ -103,12 +103,15 @@ button[kind="header"]{display:none!important;}
 }
 .login-title{font-size:18px; margin:0 0 14px 0; color:#eef3ff; font-weight:700}
 
-/* ========= Labels/legendas visíveis em branco ========= */
-.lang-row, .lang-row * { color:#ffffff !important; }         /* toggle "English" */
-#login label { color:#ffffff !important; font-weight:600; }  /* Usuário/Senha */
+/* ========= Labels e textos brancos/visíveis ========= */
+.lang-row, .lang-row * { color:#ffffff !important; }          /* toggle "English" */
+#login label, #login [data-testid="stWidgetLabel"]{
+  display:inline-block !important; visibility:visible !important; opacity:1 !important;
+  color:#ffffff !important; font-weight:600 !important;
+}
 #login input::placeholder { color:#cfe1ff !important; opacity:1; }
-.login-note { color:#e8f0ff !important; opacity:.95; }        /* Acesso restrito... */
-/* ====================================================== */
+.login-note { color:#e8f0ff !important; opacity:.95; }
+/* ==================================================== */
 
 .lang-row{position:absolute; top:16px; left:16px; opacity:.95}
 
@@ -178,13 +181,14 @@ with left:
 
 with right:
     st.markdown(f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
-    # labels PT e botão "Entrar" (fica tudo branco/visível pelo CSS acima)
+
+    # Labels PT; se a versão suportar, usa fields; senão, fallback mantém rótulos brancos via CSS
     fields = {"Form name": "", "Username": "Usuário", "Password": "Senha", "Login": "Entrar"}
     try:
         name, auth_status, username = authenticator.login("main", fields=fields)
     except TypeError:
-        # fallback: versões antigas sem 'fields'
         name, auth_status, username = authenticator.login("main")
+
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
 
 # -------------------- Pós-login --------------------
