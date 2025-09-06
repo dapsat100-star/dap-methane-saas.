@@ -157,7 +157,8 @@ TXT = {
         "title": "PLATAFORMA DE MONITORAMENTO DE METANO POR SATÉLITE",
         "subtitle": "Detecção, quantificação e insights acionáveis a partir de dados multissatélite. Confiabilidade de nível industrial.",
         "bul1": "Detecção e priorização de eventos",
-      
+        "bul2": "Relatórios OGMP 2.0 e auditoria",
+        "bul3": "Geoportal com mapas, KPIs e séries históricas",
         "cta_login": "Login",
         "cta_about": "Saiba mais",
         "secure_access": "Acesso Seguro",
@@ -385,4 +386,3 @@ div[class*="stDeployButton"], div[class*="floating"] {
 html, body, .stApp { padding-bottom: 0 !important; margin-bottom: 0 !important; }
 </style>
 """, unsafe_allow_html=True)
-
