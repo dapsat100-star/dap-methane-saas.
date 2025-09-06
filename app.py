@@ -190,6 +190,36 @@ with right:
         name, auth_status, username = authenticator.login("main")
 
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
+    # --- forçar cores (visíveis) dos rótulos e textos do login ---
+st.markdown("""
+<style>
+/* rótulo do toggle "English" */
+.lang-row, .lang-row * { color:#ffffff !important; }
+
+/* rótulos "Usuário" e "Senha" */
+#login label,
+#login [data-testid="stWidgetLabel"],
+#login [data-testid="stWidgetLabel"] * {
+  color:#ffffff !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  font-weight:600 !important;
+}
+
+/* texto de ajuda abaixo do card */
+#login .login-note { color:#e8f0ff !important; opacity:.95 !important; }
+
+/* placeholders dos campos (se aparecerem) */
+#login input::placeholder { color:#cfe1ff !important; opacity:1 !important; }
+
+/* se ainda não aparecer por alguma classe obscura, descomente a linha abaixo (modo “martelo”)
+#login, #login * { color:#ffffff !important; }
+*/
+</style>
+""", unsafe_allow_html=True)
+
+
+
 
 # -------------------- Pós-login --------------------
 if 'auth_status' in locals():
