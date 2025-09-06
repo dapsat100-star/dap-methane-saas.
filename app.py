@@ -173,15 +173,36 @@ with left:
 
 with right:
     st.markdown(f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
-    name, auth_status, username = authenticator.login("main")
+
+    # >>>>>>>>>>>> AQUI: rótulos em branco via 'fields' (e fallback automático) <<<<<<<<<<<<<
+    fields = {"Form name": "", "Username": "", "Password": "", "Login": "Entrar"}
+    try:
+        name, auth_status, username = authenticator.login("main", fields=fields)
+    except TypeError:
+        # Fallback: versões antigas sem 'fields'
+        name, auth_status, username = authenticator.login("main")
+        st.markdown("""
+        <style>
+          #login h1, #login h2, #login h3, #login label { display:none !important; }
+          /* Deixe o botão com texto 'Entrar' */
+          #login button::after { content: "Entrar"; }
+          #login button > div { visibility: hidden; }
+        </style>
+        """, unsafe_allow_html=True)
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
 
+# -------------------- Pós-login --------------------
 if auth_status is False: st.error(t["bad_credentials"])
 elif auth_status is None: st.info(t["login_hint"])
 if auth_status:
     show_sidebar()
     st.sidebar.success(f'{t["logged_as"]}: {name}')
-    authenticator.logout(location="sidebar")
+    try:
+        authenticator.logout(location="sidebar")
+    except Exception:
+        authenticator.logout("Sair", "sidebar")
 
 # -------------------- Footer --------------------
 APP_VERSION = os.getenv("APP_VERSION","v1.0.0")
