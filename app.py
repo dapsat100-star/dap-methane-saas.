@@ -23,19 +23,16 @@ def apply_tech_bg():
     <style>
     .stApp { background: none !important; }
     .stApp {
-      background-color: #0a1b3a; /* base */
+      background-color: #0a1b3a;
       background-image:
         radial-gradient(1200px 800px at 75% 40%, rgba(70,115,255,0.18), rgba(0,0,0,0) 60%),
         radial-gradient(900px 600px at 10% 80%, rgba(0,240,255,0.12), rgba(0,0,0,0) 60%),
-        /* SVG orbit lines */
         url("data:image/svg+xml;utf8,\
         <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'>\
-          <defs>\
-            <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>\
-              <stop offset='0%' stop-color='%23A7C8FF' stop-opacity='0.35'/>\
-              <stop offset='100%' stop-color='%2300E5FF' stop-opacity='0.15'/>\
-            </linearGradient>\
-          </defs>\
+          <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>\
+            <stop offset='0%' stop-color='%23A7C8FF' stop-opacity='0.35'/>\
+            <stop offset='100%' stop-color='%2300E5FF' stop-opacity='0.15'/>\
+          </linearGradient></defs>\
           <g fill='none' stroke='url(%23g)' stroke-width='1.2'>\
             <path d='M-200,700 C300,400 900,420 1800,200'/>\
             <path d='M-200,820 C420,520 1020,540 1800,360'/>\
@@ -97,17 +94,41 @@ button[kind="header"]{display:none!important;}
 .btn-ghost{display:inline-block; padding:10px 16px; border-radius:12px;
   background:transparent; color:#cfe2ff; border:1px solid rgba(255,255,255,.28); text-decoration:none;}
 
-.login-card{
-  padding:28px; border-radius:var(--radius);
-  background: var(--card);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  border:1px solid var(--border); box-shadow: var(--shadow);
-  color:#0f172a;
-}
-.login-title{font-size:18px; margin:0 0 14px 0; color:#0f172a; font-weight:700}
-.login-note{font-size:12px; color:#475569; margin-top:6px}
+.login-title{font-size:18px; margin:0 0 14px 0; color:#eef3ff; font-weight:700}
 
-.lang-row{position:absolute; top:16px; left:16px; opacity:.85}
+/* Toggle "English" em branco */
+.lang-row, .lang-row * { color:#ffffff !important; }
+.lang-row{position:absolute; top:16px; left:16px; opacity:.95}
+
+/* ====== APENAS o miolo do formulário branco ====== */
+/* 0) tira qualquer fundo do contêiner externo onde o form está */
+div[data-testid="stVerticalBlock"]:has(input[type="password"]) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+/* 1) deixa branco só o bloco do formulário (inputs/labels) */
+form[data-testid="stForm"]:has(input[type="password"]),
+div[data-testid="stForm"]:has(input[type="password"]),
+div[data-testid="stVerticalBlock"] > div:has(> div input[type="password"]) {
+  background: #ffffffF2 !important;
+  color: #0f172a !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow) !important;
+  padding: 20px !important;
+}
+/* 2) labels e placeholders dentro do card branco */
+form[data-testid="stForm"]:has(input[type="password"]) label,
+div[data-testid="stForm"]:has(input[type="password"]) label,
+form[data-testid="stForm"]:has(input[type="password"]) [data-testid="stWidgetLabel"],
+div[data-testid="stForm"]:has(input[type="password"]) [data-testid="stWidgetLabel"]{
+  color:#0f172a !important; font-weight:600 !important; opacity:1 !important; visibility:visible !important;
+}
+form[data-testid="stForm"]:has(input[type="password"]) input::placeholder,
+div[data-testid="stForm"]:has(input[type="password"]) input::placeholder { color:#6b7280 !important; opacity:1 !important; }
+/* ================================================ */
 
 .footer{
   position:fixed; left:0; right:0; bottom:0; padding:8px 16px;
@@ -132,14 +153,14 @@ TXT = {
          "subtitle":"Detecção, quantificação e insights acionáveis a partir de dados multissatélite. Confiabilidade de nível industrial.",
          "bul1":"Detecção e priorização de eventos","bul2":"Relatórios OGMP 2.0 e auditoria","bul3":"Geoportal com mapas, KPIs e séries históricas",
          "cta_login":"Login","cta_about":"Saiba mais","secure_access":"Acesso Seguro","login_hint":"Por favor, faça login para continuar.",
-         "bad_credentials":"Usuário ou senha inválidos.","confidential":"Acesso restrito. Conteúdo confidencial.","logged_as":"Logado como",
-         "support":"Suporte","privacy":"Privacidade","internal_use":"Uso interno"},
+         "bad_credentials":"Usuário ou senha inválidos.","confidential":"Acesso restrito. Conteúdo confidencial.",
+         "logged_as":"Logado como","support":"Suporte","privacy":"Privacidade","internal_use":"Uso interno"},
   "en": {"eyebrow":"OGMP 2.0 Platform – L5","title":"SATELLITE METHANE MONITORING PLATFORM",
          "subtitle":"Detection, quantification, and actionable insights from multi-satellite data. Industrial-grade reliability.",
          "bul1":"Event detection & prioritization","bul2":"OGMP 2.0 reporting & audit","bul3":"Geoportal with maps, KPIs, time series",
          "cta_login":"Login","cta_about":"Learn more","secure_access":"Secure Access","login_hint":"Please sign in to continue.",
-         "bad_credentials":"Invalid username or password.","confidential":"Restricted access. Confidential content.","logged_as":"Signed in as",
-         "support":"Support","privacy":"Privacy","internal_use":"Internal use"}
+         "bad_credentials":"Invalid username or password.","confidential":"Restricted access. Confidential content.",
+         "logged_as":"Signed in as","support":"Support","privacy":"Privacy","internal_use":"Internal use"}
 }
 t = TXT[st.session_state.lang]
 
@@ -162,9 +183,12 @@ hide_sidebar()
 
 # -------------------- Layout --------------------
 left, right = st.columns([1.25,1], gap="large")
+
 with left:
-    if Path("dapatlas.jpeg").exists():
-        st.image("dapatlas.jpeg", width=200)
+    for cand in ("dapatlas.jpeg", "dapatlas.png", "logo.png", "logo.jpeg"):
+        if Path(cand).exists():
+            st.image(Image.open(cand), width=200)
+            break
     st.markdown(f'<div class="hero-eyebrow">{t["eyebrow"]}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="hero-title">{t["title"]}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="hero-sub">{t["subtitle"]}</div>', unsafe_allow_html=True)
@@ -172,16 +196,28 @@ with left:
     st.markdown(f"<div class='cta-row'><a class='btn-primary' href='#login'>{t['cta_login']}</a><a class='btn-ghost' href='mailto:support@dapsistemas.com'>{t['cta_about']}</a></div>", unsafe_allow_html=True)
 
 with right:
-    st.markdown(f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
-    name, auth_status, username = authenticator.login("main")
-    st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
+    st.markdown(f"<div id='login' class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
+    # Labels PT e botão Entrar
+    fields = {"Form name": "", "Username": "Usuário", "Password": "Senha", "Login": "Entrar"}
+    try:
+        name, auth_status, username = authenticator.login("main", fields=fields)
+    except TypeError:
+        name, auth_status, username = authenticator.login("main")
+    st.markdown(f"<div class='login-note'>{t['confidential']}</div>", unsafe_allow_html=True)
 
-if auth_status is False: st.error(t["bad_credentials"])
-elif auth_status is None: st.info(t["login_hint"])
-if auth_status:
-    show_sidebar()
-    st.sidebar.success(f'{t["logged_as"]}: {name}')
-    authenticator.logout(location="sidebar")
+# -------------------- Pós-login --------------------
+if 'auth_status' in locals():
+    if auth_status is False:
+        st.error(t["bad_credentials"])
+    elif auth_status is None:
+        st.info(t["login_hint"])
+    if auth_status:
+        show_sidebar()
+        st.sidebar.success(f'{t["logged_as"]}: {name}')
+        try:
+            authenticator.logout(location="sidebar")
+        except Exception:
+            authenticator.logout("Sair", "sidebar")
 
 # -------------------- Footer --------------------
 APP_VERSION = os.getenv("APP_VERSION","v1.0.0")
