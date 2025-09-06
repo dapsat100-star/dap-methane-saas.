@@ -1,4 +1,3 @@
-# app.py
 # -*- coding: utf-8 -*-
 
 # =============================================================================
@@ -20,14 +19,14 @@ import streamlit_authenticator as stauth
 # =============================================================================
 st.set_page_config(
     page_title="Plataforma de Metano OGMP 2.0 - L5",
-    page_icon="assets/favicon.png",     # PNG 32x32 em assets/
+    page_icon="favicon.png",       # <-- favicon na MESMA pasta
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 load_dotenv()
 
 # =============================================================================
-# Forçar embed=true com JS
+# Forçar embed=true com JS (oculta chrome do Streamlit Cloud)
 # =============================================================================
 st.markdown(
     """
@@ -39,7 +38,7 @@ st.markdown(
           url.searchParams.set("embed", "true");
           window.location.replace(url.toString());
         }
-      } catch (e) { }
+      } catch (e) {}
     })();
     </script>
     """,
@@ -47,7 +46,7 @@ st.markdown(
 )
 
 # =============================================================================
-# Estilos globais
+# Estilos globais (visual premium)
 # =============================================================================
 st.markdown(
     """
@@ -58,65 +57,80 @@ st.markdown(
     button[kind="header"]{display:none !important;}
 
     :root{
-      --dap-primary:#003366;
-      --dap-accent:#0ea5e9;
-      --border:#eef0f3;
-      --card-shadow:0 8px 30px rgba(0,0,0,.08);
+      --dap-primary:#0b2b5c;
+      --dap-accent:#2b8cff;
+      --ink:#0f172a;
+      --muted:#475569;
+      --card:#ffffffdd;
+      --border:#e6ebf2;
+      --shadow:0 18px 60px rgba(20,40,120,.18);
+      --radius:20px;
     }
+
+    .stApp{
+      background: linear-gradient(140deg,#0f2d55 0%, #123a6e 45%, #144180 100%);
+      color:#e5eefc;
+    }
+    .block-container{padding-top:2.2rem; max-width:1200px;}
+
+    .hero-eyebrow{
+      display:inline-block; font-size:13px; letter-spacing:.18em; text-transform:uppercase;
+      padding:6px 10px; border:1px solid #2a4f86; border-radius:999px;
+      background:rgba(255,255,255,.06);
+    }
+    .hero-title{margin:14px 0 8px 0; line-height:1.1; font-size:44px; font-weight:800; color:#fff;}
+    .hero-sub{font-size:17px; color:#d6e3ff; max-width:600px}
+    .hero-bullets{margin:16px 0 24px 0; padding:0; list-style:none}
+    .hero-bullets li{margin:6px 0; color:#d6e3ff}
+    .hero-bullets li::before{content:"•"; margin-right:8px; color:#8ec1ff; font-weight:700}
+
+    .cta-row{display:flex; gap:12px; margin:18px 0 0 0}
+    .btn-primary{display:inline-block; padding:10px 16px; border-radius:12px;
+      background:var(--dap-accent); color:#fff; font-weight:700; text-decoration:none;
+      box-shadow:0 8px 24px rgba(43,140,255,.35);}
+    .btn-ghost{display:inline-block; padding:10px 16px; border-radius:12px;
+      background:transparent; color:#cfe2ff; border:1px solid rgba(255,255,255,.28); text-decoration:none;}
+
     .login-card{
-      padding:28px;border-radius:18px;
-      background: rgba(255,255,255,0.85) !important;
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(180,200,255,0.6) !important;
-      box-shadow: 0 8px 28px rgba(80,120,200,.15) !important;
+      padding:28px; border-radius:var(--radius);
+      background: var(--card);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      border:1px solid var(--border); box-shadow: var(--shadow);
+      color:#0f172a;
     }
-    .login-title{
-      font-size:18px;margin:0 0 16px 0;color:#0f172a;font-weight:600
-    }
+    .login-title{font-size:18px; margin:0 0 14px 0; color:#0f172a; font-weight:700}
+    .login-note{font-size:12px; color:#475569; margin-top:6px}
+
+    .lang-row{position:absolute; top:16px; left:16px; opacity:.85}
+
     .footer{
-      position:fixed;left:0;right:0;bottom:0;padding:6px 16px;
-      background:rgba(255,255,255,.85);backdrop-filter:saturate(180%) blur(8px);
-      border-top:1px solid var(--border);font-size:12px;color:#334155;
-      display:flex;gap:12px;justify-content:space-between;align-items:center;
-      z-index:9999;
+      position:fixed; left:0; right:0; bottom:0; padding:8px 16px;
+      background:rgba(15,25,50,.6); backdrop-filter: blur(8px);
+      border-top:1px solid rgba(255,255,255,.12);
+      font-size:12px; color:#d7e6ff; display:flex; gap:12px;
+      justify-content:space-between; align-items:center; z-index:9999;
     }
-    .footer a{color:var(--dap-accent);text-decoration:none}
+    .footer a{color:#9fd0ff; text-decoration:none}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# =============================================================================
-# Fundo azul névoa (default) ou imagem se existir
-# =============================================================================
-bg_candidates = [
-    Path("fundo.jpeg"),
-    Path("fundo.jpg"),
-    Path("fundo.png"),
-    Path("assets/fundo.jpeg"),
-    Path("assets/fundo.jpg"),
-    Path("assets/fundo.png"),
-]
-bg_path = next((p for p in bg_candidates if p.exists()), None)
-
-if bg_path:
-    bg_url = str(bg_path).replace("\\", "/")
-    st.markdown(f"""
-    <style>
-    .stApp {{
-        background: url("{bg_url}") no-repeat center center fixed;
-        background-size: cover;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-    <style>
-    .stApp {
-        background: linear-gradient(180deg, #eef5ff 0%, #dbeaff 40%, #c6ddff 100%);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# --- background image opcional (MESMA pasta do app) ---
+for cand in ("hero-bg.jpg", "hero-bg.png", "fundo.jpg", "fundo.png"):
+    if Path(cand).exists():
+        st.markdown(
+            f"""
+            <style>
+            .stApp {{
+              background-image:url('{cand}');
+              background-size:cover; background-position:center; background-attachment:fixed;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        break
 
 # =============================================================================
 # Variáveis globais
@@ -131,12 +145,22 @@ ENV_LABEL = "Produção" if ENV == "producao" else "Homologação"
 # =============================================================================
 if "lang" not in st.session_state:
     st.session_state.lang = "pt"
-lang_toggle = st.toggle("English", value=(st.session_state.lang == "en"))
+
+st.markdown('<div class="lang-row">', unsafe_allow_html=True)
+lang_toggle = st.toggle("English", value=(st.session_state.lang == "en"), key="lang_toggle")
+st.markdown('</div>', unsafe_allow_html=True)
 st.session_state.lang = "en" if lang_toggle else "pt"
 
 TXT = {
     "pt": {
+        "eyebrow": "Plataforma OGMP 2.0 – L5",
         "title": "PLATAFORMA DE MONITORAMENTO DE METANO POR SATÉLITE",
+        "subtitle": "Detecção, quantificação e insights acionáveis a partir de dados multissatélite. Confiabilidade de nível industrial.",
+        "bul1": "Detecção e priorização de eventos",
+        "bul2": "Relatórios OGMP 2.0 e auditoria",
+        "bul3": "Geoportal com mapas, KPIs e séries históricas",
+        "cta_login": "Login",
+        "cta_about": "Saiba mais",
         "secure_access": "Acesso Seguro",
         "login_hint": "Por favor, faça login para continuar.",
         "bad_credentials": "Usuário ou senha inválidos.",
@@ -153,7 +177,14 @@ TXT = {
         "internal_use": "Uso interno",
     },
     "en": {
+        "eyebrow": "OGMP 2.0 Platform – L5",
         "title": "SATELLITE METHANE MONITORING PLATFORM",
+        "subtitle": "Detection, quantification, and actionable insights from multi-satellite data. Industrial-grade reliability.",
+        "bul1": "Event detection & prioritization",
+        "bul2": "OGMP 2.0 reporting & audit",
+        "bul3": "Geoportal with maps, KPIs, time series",
+        "cta_login": "Login",
+        "cta_about": "Learn more",
         "secure_access": "Secure Access",
         "login_hint": "Please sign in to continue.",
         "bad_credentials": "Invalid username or password.",
@@ -173,7 +204,7 @@ TXT = {
 t = TXT[st.session_state.lang]
 
 # =============================================================================
-# Util
+# Utils
 # =============================================================================
 CANDIDATE_NAMES = [
     "1_📊_Estatisticas_Gerais.py",
@@ -183,7 +214,6 @@ CANDIDATE_NAMES = [
     "estatisticas.py",
     "estatisticas_gerais.py",
 ]
-
 def find_stats_page() -> Optional[Path]:
     if not PAGES_DIR.exists():
         return None
@@ -222,38 +252,52 @@ def build_authenticator() -> stauth.Authenticate:
         config["cookie"]["key"],
         config["cookie"]["expiry_days"],
     )
-
 authenticator = build_authenticator()
 
 # =============================================================================
-# Tela inicial
+# Layout principal (split-screen)
 # =============================================================================
-left, right = st.columns([1, 1], gap="large")
+left, right = st.columns([1.25, 1], gap="large")
 
 with left:
-    logo_candidates = [
-        Path("dapatlas.jpeg"),
-        Path("assets/dapatlas.jpeg"),
-        Path(__file__).parent / "dapatlas.jpeg",
-        Path(__file__).parent / "assets/dapatlas.jpeg",
-    ]
-    logo_path = next((p for p in logo_candidates if p.exists()), None)
-    if logo_path:
-        st.image(Image.open(logo_path), width=260)
+    # Logo da MESMA pasta
+    logo = None
+    for cand in ("dapatlas.jpeg", "dapatlas.png", "logo.png", "logo.jpeg"):
+        if Path(cand).exists():
+            logo = Image.open(cand)
+            break
+    if logo:
+        st.image(logo, width=200)
+
+    st.markdown('<div class="hero-eyebrow">'+t["eyebrow"]+'</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="hero-title">{t["title"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="hero-sub">{t["subtitle"]}</div>', unsafe_allow_html=True)
+
     st.markdown(
-        f'<h1 style="margin-top:12px;font-size:26px;color:var(--dap-primary);">{t["title"]}</h1>',
+        f"""
+        <ul class="hero-bullets">
+          <li>{t["bul1"]}</li>
+          <li>{t["bul2"]}</li>
+          <li>{t["bul3"]}</li>
+        </ul>
+        """,
         unsafe_allow_html=True,
     )
-    if not st.session_state.get("authentication_status"):
-        st.info(t["confidential"])
+
+    st.markdown(
+        f"""
+        <div class="cta-row">
+          <a class="btn-primary" href="#login">{t["cta_login"]}</a>
+          <a class="btn-ghost" href="mailto:support@dapsistemas.com">{t["cta_about"]}</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with right:
-    st.markdown(f'<div class="login-card"><div class="login-title">{t["secure_access"]}</div>', unsafe_allow_html=True)
-    
-    # ===== Login (versão nova, sem form_name) =====
-    name, auth_status, username = authenticator.login("main")
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(f'<div id="login" class="login-card"><div class="login-title">{t["secure_access"]}</div>', unsafe_allow_html=True)
+    name, auth_status, username = authenticator.login("main")   # versão atual do streamlit_authenticator
+    st.markdown(f'<div class="login-note">{t["confidential"]}</div></div>', unsafe_allow_html=True)
 
 _set_nav_visibility(bool(st.session_state.get("authentication_status")))
 
@@ -301,6 +345,7 @@ if auth_status:
         except Exception as e:
             st.sidebar.error(f'{t["sf_err"]}: {e}')
 
+    # Links seguros (se existirem)
     def safe_page_link(path: str, label: str) -> None:
         p = Path(path)
         if p.exists():
@@ -314,7 +359,7 @@ if auth_status:
     st.markdown(f'> {t["nav_hint"]}')
 
 # =============================================================================
-# Rodapé customizado
+# Rodapé
 # =============================================================================
 st.markdown(
     f"""
@@ -327,7 +372,7 @@ st.markdown(
 )
 
 # =============================================================================
-# Bloco robusto para esconder "Built with Streamlit" e Manage app
+# Remover branding do Streamlit (defensivo)
 # =============================================================================
 st.markdown("""
 <style>
@@ -342,37 +387,3 @@ html, body, .stApp { padding-bottom: 0 !important; margin-bottom: 0 !important; 
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<script>
-(function () {
-  const hideStreamlitBranding = () => {
-    const selectors = [
-      'footer','[data-testid="stFooter"]','.section-footer',
-      '.viewerBadge_container__','.viewerBadge_link__',
-      '[data-testid="stStatusWidget"]','[data-testid="stDecoration"]',
-      'div[class*="stDeployButton"]','div[class*="floating"]',
-      'a[title="Manage app"]','a[aria-label="Manage app"]','button[title="Manage app"]'
-    ];
-    selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => {
-      el.style.display = 'none'; el.style.visibility = 'hidden';
-      el.style.opacity = '0'; el.style.pointerEvents = 'none';
-    }));
-    const killByText = (needle) => {
-      document.querySelectorAll('a, div, footer, span, p, section').forEach(el => {
-        const t = (el.innerText || '').trim().toLowerCase();
-        if (t && (t.includes(needle))) {
-          const c = el.closest('footer') || el.parentElement || el;
-          c.style.display = 'none'; c.style.visibility = 'hidden';
-          c.style.opacity = '0'; c.style.pointerEvents = 'none';
-        }
-      });
-    };
-    killByText('built with streamlit');
-    killByText('made with streamlit');
-  };
-  hideStreamlitBranding();
-  const mo = new MutationObserver(hideStreamlitBranding);
-  mo.observe(document.body, { childList: true, subtree: true });
-})();
-</script>
-""", unsafe_allow_html=True)
