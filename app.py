@@ -19,14 +19,14 @@ import streamlit_authenticator as stauth
 # =============================================================================
 st.set_page_config(
     page_title="Plataforma de Metano OGMP 2.0 - L5",
-    page_icon="favicon.png",       # <-- favicon na MESMA pasta
+    page_icon="favicon.png",  # coloque favicon.png na mesma pasta
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 load_dotenv()
 
 # =============================================================================
-# Forçar embed=true com JS (oculta chrome do Streamlit Cloud)
+# Forçar embed=true com JS
 # =============================================================================
 st.markdown(
     """
@@ -46,7 +46,7 @@ st.markdown(
 )
 
 # =============================================================================
-# Estilos globais (visual premium)
+# Estilos globais
 # =============================================================================
 st.markdown(
     """
@@ -116,21 +116,22 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- background image opcional (MESMA pasta do app) ---
-for cand in ("hero-bg.jpg", "hero-bg.png", "fundo.jpg", "fundo.png"):
-    if Path(cand).exists():
-        st.markdown(
-            f"""
-            <style>
-            .stApp {{
-              background-image:url('{cand}');
-              background-size:cover; background-position:center; background-attachment:fixed;
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-        break
+# --- usar background.png na MESMA pasta ---
+bg_file = "background.png"
+if Path(bg_file).exists():
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+          background-image: url('{bg_file}');
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # =============================================================================
 # Variáveis globais
@@ -141,7 +142,7 @@ ENV = os.getenv("APP_ENV", "producao").lower()
 ENV_LABEL = "Produção" if ENV == "producao" else "Homologação"
 
 # =============================================================================
-# i18n (PT/EN)
+# i18n
 # =============================================================================
 if "lang" not in st.session_state:
     st.session_state.lang = "pt"
@@ -164,11 +165,11 @@ TXT = {
         "secure_access": "Acesso Seguro",
         "login_hint": "Por favor, faça login para continuar.",
         "bad_credentials": "Usuário ou senha inválidos.",
-        "stats_missing": "Não encontrei a página de **Estatísticas** em `pages/`.\n\nCrie, por exemplo, `pages/1_Estatisticas_Gerais.py`.",
+        "stats_missing": "Não encontrei a página de Estatísticas em `pages/`.",
         "go_stats": "Ir para Estatísticas Gerais",
-        "nav_hint": "Use o menu à esquerda para navegar nas páginas.",
-        "confidential": "Acesso restrito. Conteúdo confidencial. Ao prosseguir, você concorda com os Termos de Uso e a Política de Privacidade.",
-        "sf_connect": "Conectar Snowflake (read-only)",
+        "nav_hint": "Use o menu à esquerda para navegar.",
+        "confidential": "Acesso restrito. Conteúdo confidencial.",
+        "sf_connect": "Conectar Snowflake",
         "sf_ok": "Conectado ao Snowflake ✅",
         "sf_err": "Falha na conexão Snowflake",
         "logged_as": "Logado como",
@@ -188,11 +189,11 @@ TXT = {
         "secure_access": "Secure Access",
         "login_hint": "Please sign in to continue.",
         "bad_credentials": "Invalid username or password.",
-        "stats_missing": "Could not find the **Statistics** page in `pages/`.\n\nCreate e.g. `pages/1_Estatisticas_Gerais.py`.",
+        "stats_missing": "Could not find Statistics page in `pages/`.",
         "go_stats": "Go to General Statistics",
-        "nav_hint": "Use the left menu to navigate between pages.",
-        "confidential": "Restricted access. Confidential content. By proceeding, you agree to the Terms of Use and Privacy Policy.",
-        "sf_connect": "Connect Snowflake (read-only)",
+        "nav_hint": "Use the left menu to navigate.",
+        "confidential": "Restricted access. Confidential content.",
+        "sf_connect": "Connect Snowflake",
         "sf_ok": "Connected to Snowflake ✅",
         "sf_err": "Snowflake connection failed",
         "logged_as": "Signed in as",
@@ -206,26 +207,12 @@ t = TXT[st.session_state.lang]
 # =============================================================================
 # Utils
 # =============================================================================
-CANDIDATE_NAMES = [
-    "1_📊_Estatisticas_Gerais.py",
-    "1_Estatisticas_Gerais.py",
-    "1_estatisticas_gerais.py",
-    "Estatisticas_Gerais.py",
-    "estatisticas.py",
-    "estatisticas_gerais.py",
-]
 def find_stats_page() -> Optional[Path]:
     if not PAGES_DIR.exists():
         return None
-    for name in CANDIDATE_NAMES:
-        p = PAGES_DIR / name
-        if p.exists():
-            return p
     for p in PAGES_DIR.glob("*.py"):
         if "estat" in p.name.lower():
             return p
-    for p in PAGES_DIR.glob("*.py"):
-        return p
     return None
 
 def _set_nav_visibility(show: bool) -> None:
@@ -255,19 +242,13 @@ def build_authenticator() -> stauth.Authenticate:
 authenticator = build_authenticator()
 
 # =============================================================================
-# Layout principal (split-screen)
+# Layout principal
 # =============================================================================
 left, right = st.columns([1.25, 1], gap="large")
 
 with left:
-    # Logo da MESMA pasta
-    logo = None
-    for cand in ("dapatlas.jpeg", "dapatlas.png", "logo.png", "logo.jpeg"):
-        if Path(cand).exists():
-            logo = Image.open(cand)
-            break
-    if logo:
-        st.image(logo, width=200)
+    if Path("dapatlas.jpeg").exists():
+        st.image("dapatlas.jpeg", width=200)
 
     st.markdown('<div class="hero-eyebrow">'+t["eyebrow"]+'</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="hero-title">{t["title"]}</div>', unsafe_allow_html=True)
@@ -296,7 +277,7 @@ with left:
 
 with right:
     st.markdown(f'<div id="login" class="login-card"><div class="login-title">{t["secure_access"]}</div>', unsafe_allow_html=True)
-    name, auth_status, username = authenticator.login("main")   # versão atual do streamlit_authenticator
+    name, auth_status, username = authenticator.login("main")
     st.markdown(f'<div class="login-note">{t["confidential"]}</div></div>', unsafe_allow_html=True)
 
 _set_nav_visibility(bool(st.session_state.get("authentication_status")))
@@ -306,57 +287,15 @@ if auth_status is False:
 elif auth_status is None:
     st.info(t["login_hint"])
 
-# =============================================================================
-# Área autenticada
-# =============================================================================
 if auth_status:
     st.sidebar.success(f'{t["logged_as"]}: {name}')
-    try:
-        authenticator.logout(location="sidebar")
-    except Exception:
-        authenticator.logout("Sair", "sidebar")
+    authenticator.logout(location="sidebar")
 
     stats_page = find_stats_page()
-    if stats_page and stats_page.exists():
-        target = str(stats_page).replace("\\", "/")
-        try:
-            st.switch_page(target)
-            st.stop()
-        except Exception:
-            st.success("Login OK.")
-            st.sidebar.page_link(target, label=t["go_stats"])
+    if stats_page:
+        st.sidebar.page_link(str(stats_page), label=t["go_stats"])
     else:
         st.warning(t["stats_missing"])
-
-    # Snowflake (opcional)
-    use_sf = st.sidebar.checkbox(t["sf_connect"], value=False)
-    if use_sf:
-        try:
-            import snowflake.connector  # type: ignore
-            _conn = snowflake.connector.connect(
-                account=os.getenv("SNOWFLAKE_ACCOUNT"),
-                user=os.getenv("SNOWFLAKE_USER"),
-                password=os.getenv("SNOWFLAKE_PASSWORD"),
-                warehouse=os.getenv("SNOWFLAKE_WAREHOUSE"),
-                database=os.getenv("SNOWFLAKE_DATABASE"),
-                schema=os.getenv("SNOWFLAKE_SCHEMA"),
-            )
-            st.sidebar.success(t["sf_ok"])
-        except Exception as e:
-            st.sidebar.error(f'{t["sf_err"]}: {e}')
-
-    # Links seguros (se existirem)
-    def safe_page_link(path: str, label: str) -> None:
-        p = Path(path)
-        if p.exists():
-            st.sidebar.page_link(str(p).replace("\\", "/"), label=label)
-
-    safe_page_link("pages/1_📊_Estatisticas_Gerais.py", "Estatísticas Gerais")
-    safe_page_link("pages/2_🗺️_Geoportal.py", "Geoportal")
-    safe_page_link("pages/3_📄_Relatorio_OGMP_2_0.py", "Relatório OGMP 2.0")
-    safe_page_link("pages/4_🛰️_Agendamento_de_Imagens.py", "Agendamento de Imagens")
-
-    st.markdown(f'> {t["nav_hint"]}')
 
 # =============================================================================
 # Rodapé
@@ -372,7 +311,7 @@ st.markdown(
 )
 
 # =============================================================================
-# Remover branding do Streamlit (defensivo)
+# Remover branding Streamlit
 # =============================================================================
 st.markdown("""
 <style>
@@ -383,6 +322,5 @@ div[class*="stDeployButton"], div[class*="floating"] {
   display: none !important; visibility: hidden !important; opacity: 0 !important;
   pointer-events: none !important;
 }
-html, body, .stApp { padding-bottom: 0 !important; margin-bottom: 0 !important; }
 </style>
 """, unsafe_allow_html=True)
