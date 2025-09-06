@@ -7,6 +7,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from PIL import Image
 import streamlit_authenticator as stauth
+from streamlit.components.v1 import html
 
 # -------------------- Config inicial --------------------
 st.set_page_config(
@@ -17,50 +18,54 @@ st.set_page_config(
 )
 load_dotenv()
 
-# -------------------- Background tech (orbits) --------------------
-def apply_tech_bg():
-    st.markdown("""
+# -------------------- Fundo ORBITS à prova de Streamlit --------------------
+def inject_orbits_bg():
+    html("""
+    <div id="bg-orbits"></div>
     <style>
-    .stApp { background: none !important; }
-    .stApp {
-      background-color: #0a1b3a; /* base */
-      background-image:
-        radial-gradient(1200px 800px at 75% 40%, rgba(70,115,255,0.18), rgba(0,0,0,0) 60%),
-        radial-gradient(900px 600px at 10% 80%, rgba(0,240,255,0.12), rgba(0,0,0,0) 60%),
-        /* SVG orbit lines */
-        url("data:image/svg+xml;utf8,\
-        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'>\
-          <defs>\
-            <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>\
+      /* camada de fundo independente do tema/classe do Streamlit */
+      #bg-orbits{
+        position:fixed; inset:0; z-index:0; pointer-events:none;
+        background-color:#0a1b3a;
+        background-image:
+          radial-gradient(1200px 800px at 75% 40%, rgba(70,115,255,0.18), rgba(0,0,0,0) 60%),
+          radial-gradient(900px 600px at 10% 80%, rgba(0,240,255,0.12), rgba(0,0,0,0) 60%),
+          url("data:image/svg+xml;utf8,\
+          <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'>\
+            <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>\
               <stop offset='0%' stop-color='%23A7C8FF' stop-opacity='0.35'/>\
               <stop offset='100%' stop-color='%2300E5FF' stop-opacity='0.15'/>\
-            </linearGradient>\
-          </defs>\
-          <g fill='none' stroke='url(%23g)' stroke-width='1.2'>\
-            <path d='M-200,700 C300,400 900,420 1800,200'/>\
-            <path d='M-200,820 C420,520 1020,540 1800,360'/>\
-            <path d='M-200,580 C260,320 880,340 1800,140'/>\
-            <path d='M-200,460 C200,260 820,280 1800,60'/>\
-          </g>\
-          <g fill='none' stroke='%239bb8ff' stroke-opacity='0.12' stroke-width='0.8'>\
-            <circle cx='1250' cy='320' r='220'/>\
-            <circle cx='1250' cy='320' r='320'/>\
-          </g>\
-        </svg>");
-      background-repeat: no-repeat, no-repeat, no-repeat;
-      background-position: center center, left bottom, right center;
-      background-size: cover, 1400px 900px, 100% 100%;
-    }
-    .stApp::before{
-      content:""; position: fixed; inset:0;
-      background: linear-gradient(120deg, rgba(7,18,45,0.90) 0%, rgba(14,36,82,0.88) 50%, rgba(17,44,95,0.90) 100%);
-      z-index:0; pointer-events:none;
-    }
-    .block-container, [data-testid="stSidebar"], header { position: relative; z-index:1; }
+            </linearGradient></defs>\
+            <g fill='none' stroke='url(%23g)' stroke-width='1.2'>\
+              <path d='M-200,700 C300,400 900,420 1800,200'/>\
+              <path d='M-200,820 C420,520 1020,540 1800,360'/>\
+              <path d='M-200,580 C260,320 880,340 1800,140'/>\
+              <path d='M-200,460 C200,260 820,280 1800,60'/>\
+            </g>\
+            <g fill='none' stroke='%239bb8ff' stroke-opacity='0.12' stroke-width='0.8'>\
+              <circle cx='1250' cy='320' r='220'/>\
+              <circle cx='1250' cy='320' r='320'/>\
+            </g>\
+          </svg>");
+        background-repeat:no-repeat, no-repeat, no-repeat;
+        background-position:center center, left bottom, right center;
+        background-size:cover, 1400px 900px, 100% 100%;
+        filter: none;
+      }
+      /* overlay para contraste do texto */
+      #bg-orbits::after{
+        content:""; position:absolute; inset:0;
+        background: linear-gradient(120deg,
+                   rgba(7,18,45,0.92) 0%,
+                   rgba(14,36,82,0.90) 50%,
+                   rgba(17,44,95,0.92) 100%);
+      }
+      /* conteúdo acima do fundo */
+      .block-container, [data-testid="stSidebar"], header { position:relative; z-index:1; }
     </style>
-    """, unsafe_allow_html=True)
+    """, height=0)
 
-apply_tech_bg()
+inject_orbits_bg()
 
 # -------------------- Estilos globais --------------------
 st.markdown("""
@@ -132,24 +137,24 @@ TXT = {
          "subtitle":"Detecção, quantificação e insights acionáveis a partir de dados multissatélite. Confiabilidade de nível industrial.",
          "bul1":"Detecção e priorização de eventos","bul2":"Relatórios OGMP 2.0 e auditoria","bul3":"Geoportal com mapas, KPIs e séries históricas",
          "cta_login":"Login","cta_about":"Saiba mais","secure_access":"Acesso Seguro","login_hint":"Por favor, faça login para continuar.",
-         "bad_credentials":"Usuário ou senha inválidos.","confidential":"Acesso restrito. Conteúdo confidencial.","logged_as":"Logado como",
-         "support":"Suporte","privacy":"Privacidade","internal_use":"Uso interno"},
+         "bad_credentials":"Usuário ou senha inválidos.","confidential":"Acesso restrito. Conteúdo confidencial.",
+         "logged_as":"Logado como","support":"Suporte","privacy":"Privacidade","internal_use":"Uso interno"},
   "en": {"eyebrow":"OGMP 2.0 Platform – L5","title":"SATELLITE METHANE MONITORING PLATFORM",
          "subtitle":"Detection, quantification, and actionable insights from multi-satellite data. Industrial-grade reliability.",
          "bul1":"Event detection & prioritization","bul2":"OGMP 2.0 reporting & audit","bul3":"Geoportal with maps, KPIs, time series",
          "cta_login":"Login","cta_about":"Learn more","secure_access":"Secure Access","login_hint":"Please sign in to continue.",
-         "bad_credentials":"Invalid username or password.","confidential":"Restricted access. Confidential content.","logged_as":"Signed in as",
-         "support":"Support","privacy":"Privacy","internal_use":"Internal use"}
+         "bad_credentials":"Invalid username or password.","confidential":"Restricted access. Confidential content.",
+         "logged_as":"Signed in as","support":"Support","privacy":"Privacy","internal_use":"Internal use"}
 }
 t = TXT[st.session_state.lang]
 
 # -------------------- Sidebar visibility --------------------
 def hide_sidebar():
-    st.markdown("<style>[data-testid='stSidebar']{display:none!important;}</style>", unsafe_allow_html=True)
+    st.markdown("<style>[data-testid='stSidebar']{display:none!important;} button[kind='header']{display:none!important;}</style>", unsafe_allow_html=True)
 def show_sidebar():
     st.markdown("<style>[data-testid='stSidebar']{display:flex!important;}</style>", unsafe_allow_html=True)
 
-# -------------------- Authenticator --------------------
+# -------------------- Autenticação --------------------
 def build_authenticator() -> stauth.Authenticate:
     with open("auth_config.yaml", "r", encoding="utf-8") as f:
         config = yaml.load(f, Loader=SafeLoader)
@@ -163,8 +168,10 @@ hide_sidebar()
 # -------------------- Layout --------------------
 left, right = st.columns([1.25,1], gap="large")
 with left:
-    if Path("dapatlas.jpeg").exists():
-        st.image("dapatlas.jpeg", width=200)
+    for cand in ("dapatlas.jpeg", "dapatlas.png", "logo.png", "logo.jpeg"):
+        if Path(cand).exists():
+            st.image(Image.open(cand), width=200)
+            break
     st.markdown(f'<div class="hero-eyebrow">{t["eyebrow"]}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="hero-title">{t["title"]}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="hero-sub">{t["subtitle"]}</div>', unsafe_allow_html=True)
@@ -176,14 +183,20 @@ with right:
     name, auth_status, username = authenticator.login("main")
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
 
-if auth_status is False: st.error(t["bad_credentials"])
-elif auth_status is None: st.info(t["login_hint"])
+# -------------------- Pós-login --------------------
+if auth_status is False:
+    st.error(t["bad_credentials"])
+elif auth_status is None:
+    st.info(t["login_hint"])
 if auth_status:
     show_sidebar()
     st.sidebar.success(f'{t["logged_as"]}: {name}')
-    authenticator.logout(location="sidebar")
+    try:
+        authenticator.logout(location="sidebar")
+    except Exception:
+        authenticator.logout("Sair", "sidebar")
 
-# -------------------- Footer --------------------
+# -------------------- Rodapé --------------------
 APP_VERSION = os.getenv("APP_VERSION","v1.0.0")
 ENV_LABEL = "Produção"
 st.markdown(f"""
@@ -192,4 +205,16 @@ st.markdown(f"""
   <div>🔒 {t["internal_use"]} · <a href="mailto:support@dapsistemas.com">{t["support"]}</a> · 
        <a href="https://example.com/privacidade" target="_blank">{t["privacy"]}</a></div>
 </div>
+""", unsafe_allow_html=True)
+
+# -------------------- Anti-branding Streamlit --------------------
+st.markdown("""
+<style>
+footer,[data-testid="stFooter"],.section-footer,
+.viewerBadge_container__,.viewerBadge_link__,
+[data-testid="stStatusWidget"],[data-testid="stDecoration"],
+div[class*="stDeployButton"],div[class*="floating"]{
+  display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+</style>
 """, unsafe_allow_html=True)
