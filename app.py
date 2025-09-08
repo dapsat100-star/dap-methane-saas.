@@ -196,7 +196,7 @@ with left:
     for cand in ("dapatlas.png","dapatlas.jpeg","logo.png","logo.jpeg"):
         if Path(cand).exists():
             st.markdown("<div class='logo-card'>", unsafe_allow_html=True)
-            st.image(Image.open(cand), use_column_width=False)
+            st.image(Image.open(cand), width=180)  # sem use_column_width
             st.markdown("</div>", unsafe_allow_html=True)
             break
 
