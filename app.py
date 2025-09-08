@@ -21,135 +21,45 @@ st.set_page_config(
 load_dotenv()
 
 # ------------------------------------------------------------
-# CSS geral
+# Fundo com imagem local (background.png → base64)
 # ------------------------------------------------------------
-st.markdown("""
-<style>
-header[data-testid="stHeader"]{display:none;}
-div[data-testid="stToolbar"]{display:none!important;}
-#MainMenu{visibility:hidden;}
-button[kind="header"]{display:none!important;}
+def _bg_data_uri():
+    here = Path(__file__).parent
+    candidates = [here/"background.png", here/"assets"/"background.png"]
+    for p in candidates:
+        if p.exists():
+            mime = "image/png"
+            b64 = base64.b64encode(p.read_bytes()).decode("ascii")
+            return f"data:{mime};base64,{b64}"
+    return None
 
-html, body, .stApp, [data-testid="stAppViewContainer"],
-.block-container, [data-testid="stSidebar"], header, footer {
-  background: #f5f5f5 !important;
-  color: #111111 !important;
-}
-
-.stApp::before, .stApp::after, body::before, body::after {
-  content:none !important; background:none !important;
-}
-
-* { color:#111111 !important; }
-a { color:#111111 !important; text-decoration: underline; }
-
-input, textarea, select, .stTextInput input, .stPassword input {
-  background:#ffffff !important; color:#111111 !important;
-  border:1px solid #d0d7e2 !important; border-radius:10px !important;
-}
-input::placeholder, textarea::placeholder {
-  color:#444444 !important; opacity:1 !important;
-}
-
-.login-card{
-  padding:24px; border:1px solid #e7e7e7; border-radius:16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.06); background:#ffffff !important;
-}
-.login-title{ font-size:18px; margin:0 0 14px 0; font-weight:700; }
-
-.hero-eyebrow{ display:inline-block; font-size:12px; letter-spacing:.18em;
-  text-transform:uppercase; padding:6px 10px; border:1px solid #111; border-radius:999px; }
-.hero-title{ margin:14px 0 8px 0; line-height:1.1; font-size:40px; font-weight:800; }
-.hero-sub{ font-size:16px; max-width:640px; }
-.hero-bullets{ margin:16px 0 24px 0; padding-left:18px; }
-.hero-bullets li{ margin:6px 0; }
-
-.btn-primary, .btn-ghost{
-  display:inline-block; padding:10px 16px; border-radius:10px; text-decoration:none !important;
-  background:#ffffff; color:#111111 !important; border:1px solid #111111;
-}
-.cta-row{ display:flex; gap:12px; margin-top:16px }
-
-.lang-row{ position:absolute; top:16px; left:16px; }
-
-.footer{
-  position:fixed; left:0; right:0; bottom:0; padding:8px 16px;
-  background:#f5f5f5; border-top:1px solid #ececec; color:#111111;
-  display:flex; justify-content:space-between; align-items:center; font-size:12px; z-index:999;
-}
-
-.block-container{ padding-top:2rem; max-width:1200px; }
-[data-testid="stSidebar"]{ display:none; }
-</style>
-""", unsafe_allow_html=True)
-
-# ------------------------------------------------------------
-# BG SVG grid → base64
-# ------------------------------------------------------------
-svg = """
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'>
-  <defs>
+_bg = _bg_data_uri()
+if _bg:
+    st.markdown(f"""
     <style>
-      .l{stroke:#999;stroke-opacity:.15;stroke-width:0.6}
-      .d{fill:#999;fill-opacity:.18}
+    [data-testid="stAppViewContainer"]::before {{
+      content:"";
+      position: fixed; inset: 0;
+      z-index: 0; pointer-events: none;
+      background: #f5f5f5 url('{_bg}') no-repeat center center;
+      background-size: cover;
+      opacity: .55;  /* ajuste a intensidade */
+      filter: contrast(103%) brightness(101%);
+    }}
+    .block-container, [data-testid="stSidebar"], header, footer {{
+      position: relative; z-index: 1;
+    }}
     </style>
-  </defs>
-  <g>
-    <!-- linhas horizontais -->
-    <line class='l' x1='0' y1='50' x2='400' y2='50'/>
-    <line class='l' x1='0' y1='100' x2='400' y2='100'/>
-    <line class='l' x1='0' y1='150' x2='400' y2='150'/>
-    <line class='l' x1='0' y1='200' x2='400' y2='200'/>
-    <line class='l' x1='0' y1='250' x2='400' y2='250'/>
-    <line class='l' x1='0' y1='300' x2='400' y2='300'/>
-    <line class='l' x1='0' y1='350' x2='400' y2='350'/>
-    <!-- linhas verticais -->
-    <line class='l' x1='50' y1='0' x2='50' y2='400'/>
-    <line class='l' x1='100' y1='0' x2='100' y2='400'/>
-    <line class='l' x1='150' y1='0' x2='150' y2='400'/>
-    <line class='l' x1='200' y1='0' x2='200' y2='400'/>
-    <line class='l' x1='250' y1='0' x2='250' y2='400'/>
-    <line class='l' x1='300' y1='0' x2='300' y2='400'/>
-    <line class='l' x1='350' y1='0' x2='350' y2='400'/>
-    <!-- nós -->
-    <circle class='d' cx='100' cy='100' r='2'/>
-    <circle class='d' cx='200' cy='200' r='2'/>
-    <circle class='d' cx='300' cy='150' r='2'/>
-    <circle class='d' cx='150' cy='300' r='2'/>
-  </g>
-</svg>
-""".strip()
-data_uri = "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")
-
-st.markdown("""
-<style>
-[data-testid="stAppViewContainer"]::before {
-  content:"";
-  position: fixed; inset: 0;
-  z-index: 0; pointer-events: none;
-  background: #f5f5f5 url('background.png') no-repeat center center;
-  background-size: cover;   /* cobre toda a tela */
-  opacity: .35;             /* ajuste a transparência (0.2 – 0.6) */
-  filter: contrast(103%) brightness(101%);
-}
-
-[data-testid="stAppViewContainer"]::after {
-  content:""; position: fixed; inset: 0 0 auto 0; height: 28vh;
-  pointer-events:none; z-index: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,0));
-}
-
-.block-container, [data-testid="stSidebar"], header, footer {
-  position: relative; z-index: 1;
-}
-</style>
-""", unsafe_allow_html=True)
-
+    """, unsafe_allow_html=True)
+else:
+    st.warning("⚠️ 'background.png' não foi encontrado (raiz ou assets/).")
 
 # ------------------------------------------------------------
 # i18n
 # ------------------------------------------------------------
-if "lang" not in st.session_state: st.session_state.lang = "pt"
+if "lang" not in st.session_state: 
+    st.session_state.lang = "pt"
+
 st.markdown('<div class="lang-row">', unsafe_allow_html=True)
 lang_toggle = st.toggle("English", value=(st.session_state.lang=="en"), key="lang_toggle")
 st.markdown('</div>', unsafe_allow_html=True)
@@ -187,6 +97,7 @@ def build_authenticator() -> stauth.Authenticate:
         config["credentials"], config["cookie"]["name"],
         config["cookie"]["key"], config["cookie"]["expiry_days"]
     )
+
 authenticator = build_authenticator()
 
 # ------------------------------------------------------------
@@ -227,7 +138,7 @@ with right:
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
-# UX Kit (igual antes)
+# UX Kit (password eye + remember user)
 # ------------------------------------------------------------
 def apply_ux_enhancements():
     st.markdown("""
