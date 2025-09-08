@@ -117,7 +117,6 @@ svg = """
 </svg>
 """.strip()
 data_uri = "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")
-
 st.markdown(f"""
 <style>
 [data-testid="stAppViewContainer"]::before {{
@@ -126,19 +125,26 @@ st.markdown(f"""
   z-index: 0; pointer-events: none;
   background-color: #f5f5f5;
   background-image: url("{data_uri}");
-  background-size: cover; background-position: center;
-  opacity: .45; filter: contrast(103%) brightness(101%);
+  background-repeat: repeat;          /* repete o padrão */
+  background-size: 800px 450px;       /* escala proporcional ao viewBox original (1600x900 / 2) */
+  background-position: center;
+  opacity: .35;                       /* deixei mais sutil */
+  filter: contrast(103%) brightness(101%);
 }}
+
 [data-testid="stAppViewContainer"]::after {{
   content:""; position: fixed; inset: 0 0 auto 0; height: 28vh;
   pointer-events:none; z-index: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,0));
 }}
+
 .block-container, [data-testid="stSidebar"], header, footer {{
   position: relative; z-index: 1;
 }}
 </style>
 """, unsafe_allow_html=True)
+
+
 
 # ------------------------------------------------------------
 # i18n
