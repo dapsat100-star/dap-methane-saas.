@@ -28,6 +28,16 @@ st.markdown("""
 div[data-testid="collapsedControl"]{ display:none !important; }
 </style>
 """, unsafe_allow_html=True)
+# Esconde header, toolbar e menu padrão do Streamlit
+st.markdown("""
+<style>
+header[data-testid="stHeader"] {display: none !important;}
+div[data-testid="stToolbar"] {display: none !important;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
 
 # ------------------------------------------------------------
 # Fundo com imagem local (background.png → base64)
