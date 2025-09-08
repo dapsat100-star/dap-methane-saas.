@@ -108,13 +108,26 @@ if _bg:
       content:"";
       position: fixed; inset: 0;
       z-index: 0; pointer-events: none;
-      background: #f5f5f5 url('{_bg}') no-repeat center center;
-      background-size: cover;   /* cobre a tela */
-      opacity: .55;             /* ajuste 0.3–0.7 conforme desejar */
+      background: #f5f5f5 url('{_bg}') no-repeat center top;
+      background-size: clamp(900px, 85vw, 1600px) auto;  /* tamanho controlado */
+      opacity: .50;
       filter: contrast(103%) brightness(101%);
     }}
     .block-container, [data-testid="stSidebar"], header, footer {{
       position: relative; z-index: 1;
+    }}
+    @media (max-width: 1200px){{
+      [data-testid="stAppViewContainer"]::before {{
+        background-size: clamp(780px, 90vw, 1100px) auto;
+        opacity:.45;
+      }}
+    }}
+    @media (max-width: 768px){{
+      [data-testid="stAppViewContainer"]::before {{
+        background-size: 700px auto;
+        background-position: center 40px;
+        opacity:.40;
+      }}
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -172,7 +185,7 @@ def build_authenticator() -> stauth.Authenticate:
 authenticator = build_authenticator()
 
 # ------------------------------------------------------------
-# Layout (lateral esquerda = hero do print)
+# Layout (hero + login)
 # ------------------------------------------------------------
 left, right = st.columns([1.15, 1], gap="large")
 
