@@ -84,39 +84,43 @@ input::placeholder, textarea::placeholder {
 """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------
-# BG SVG → base64
+# BG SVG grid → base64
 # ------------------------------------------------------------
 svg = """
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'>
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'>
   <defs>
-    <radialGradient id='g' cx='50%' cy='40%' r='80%'>
-      <stop offset='0%' stop-color='#f7f7f7'/>
-      <stop offset='100%' stop-color='#f3f3f3'/>
-    </radialGradient>
-    <style>.l{stroke:#999;stroke-opacity:.18;stroke-width:1.2}.d{fill:#999;fill-opacity:.22}</style>
+    <style>
+      .l{stroke:#999;stroke-opacity:.15;stroke-width:0.6}
+      .d{fill:#999;fill-opacity:.18}
+    </style>
   </defs>
-  <rect width='100%' height='100%' fill='url(#g)'/>
-  <g class='grid'>
-    <path class='l' d='M-50,120 C200,80 350,160 520,120 740,65 980,165 1220,110 1420,65 1650,150 1700,120'/>
-    <path class='l' d='M-50,320 C180,280 360,360 560,315 820,255 1020,330 1260,300 1450,280 1650,340 1700,320'/>
-    <path class='l' d='M-50,520 C220,470 380,560 600,515 860,455 1060,540 1300,505 1500,480 1650,560 1700,520'/>
-    <path class='l' d='M-50,720 C220,670 420,760 640,710 900,650 1120,740 1360,700 1540,670 1660,760 1700,720'/>
-    <path class='l' d='M120,0 C160,220 260,300 420,360 640,440 860,420 1080,360 1300,300 1440,220 1500,0'/>
-    <path class='l' d='M0,80 C200,180 360,220 560,220 800,220 1040,160 1280,60 1400,10 1500,-10 1700,10'/>
-  </g>
-  <g class='nodes'>
-    <circle class='d' cx='200' cy='120' r='2.6'/>
-    <circle class='d' cx='520' cy='120' r='2.6'/>
-    <circle class='d' cx='820' cy='255' r='2.6'/>
-    <circle class='d' cx='1060' cy='540' r='2.6'/>
-    <circle class='d' cx='1280' cy='60' r='2.6'/>
-    <circle class='d' cx='1360' cy='700' r='2.6'/>
-    <circle class='d' cx='420' cy='360' r='2.6'/>
-    <circle class='d' cx='600' cy='515' r='2.6'/>
+  <g>
+    <!-- linhas horizontais -->
+    <line class='l' x1='0' y1='50' x2='400' y2='50'/>
+    <line class='l' x1='0' y1='100' x2='400' y2='100'/>
+    <line class='l' x1='0' y1='150' x2='400' y2='150'/>
+    <line class='l' x1='0' y1='200' x2='400' y2='200'/>
+    <line class='l' x1='0' y1='250' x2='400' y2='250'/>
+    <line class='l' x1='0' y1='300' x2='400' y2='300'/>
+    <line class='l' x1='0' y1='350' x2='400' y2='350'/>
+    <!-- linhas verticais -->
+    <line class='l' x1='50' y1='0' x2='50' y2='400'/>
+    <line class='l' x1='100' y1='0' x2='100' y2='400'/>
+    <line class='l' x1='150' y1='0' x2='150' y2='400'/>
+    <line class='l' x1='200' y1='0' x2='200' y2='400'/>
+    <line class='l' x1='250' y1='0' x2='250' y2='400'/>
+    <line class='l' x1='300' y1='0' x2='300' y2='400'/>
+    <line class='l' x1='350' y1='0' x2='350' y2='400'/>
+    <!-- nós -->
+    <circle class='d' cx='100' cy='100' r='2'/>
+    <circle class='d' cx='200' cy='200' r='2'/>
+    <circle class='d' cx='300' cy='150' r='2'/>
+    <circle class='d' cx='150' cy='300' r='2'/>
   </g>
 </svg>
 """.strip()
 data_uri = "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")
+
 st.markdown(f"""
 <style>
 [data-testid="stAppViewContainer"]::before {{
@@ -125,26 +129,20 @@ st.markdown(f"""
   z-index: 0; pointer-events: none;
   background-color: #f5f5f5;
   background-image: url("{data_uri}");
-  background-repeat: repeat;          /* repete o padrão */
-  background-size: 800px 450px;       /* escala proporcional ao viewBox original (1600x900 / 2) */
-  background-position: center;
-  opacity: .35;                       /* deixei mais sutil */
-  filter: contrast(103%) brightness(101%);
+  background-repeat: repeat;
+  background-size: 300px 300px;   /* controla densidade da malha */
+  opacity: .25;                   /* mais sutil */
 }}
-
 [data-testid="stAppViewContainer"]::after {{
   content:""; position: fixed; inset: 0 0 auto 0; height: 28vh;
   pointer-events:none; z-index: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,0));
 }}
-
 .block-container, [data-testid="stSidebar"], header, footer {{
   position: relative; z-index: 1;
 }}
 </style>
 """, unsafe_allow_html=True)
-
-
 
 # ------------------------------------------------------------
 # i18n
@@ -227,14 +225,13 @@ with right:
     st.markdown(f"<div class='login-note'>{t['confidential']}</div></div>", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
-# UX Kit
+# UX Kit (igual antes)
 # ------------------------------------------------------------
 def apply_ux_enhancements():
     st.markdown("""
     <style>
       .pw-eye {position:absolute; right:10px; top:50%; transform: translateY(-50%);
-        border:0; background:transparent; cursor:pointer; font-size:16px;
-        padding:2px; line-height:1;}
+        border:0; background:transparent; cursor:pointer; font-size:16px; padding:2px; line-height:1;}
       .pw-wrap { position:relative; }
       .caps-hint { margin-top:6px; font-size:12px; color:#d00; }
       .remember-row { display:flex; align-items:center; gap:8px; font-size:13px;
