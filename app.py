@@ -38,9 +38,9 @@ html, body, .stApp, [data-testid="stAppViewContainer"],
 }
 
 /* kill qualquer overlay antigo */
-.stApp::before, .stApp::after, body::before, body::after { 
-  content:none !important; 
-  background:none !important; 
+.stApp::before, .stApp::after, body::before, body::after {
+  content:none !important;
+  background:none !important;
 }
 
 /* todo texto preto por padrão */
@@ -51,14 +51,14 @@ a { color:#111111 !important; text-decoration: underline; }
 
 /* inputs: brancos, borda suave, texto preto */
 input, textarea, select, .stTextInput input, .stPassword input {
-  background:#ffffff !important; 
+  background:#ffffff !important;
   color:#111111 !important;
-  border:1px solid #d0d7e2 !important; 
+  border:1px solid #d0d7e2 !important;
   border-radius:10px !important;
 }
-input::placeholder, textarea::placeholder { 
-  color:#444444 !important; 
-  opacity:1 !important; 
+input::placeholder, textarea::placeholder {
+  color:#444444 !important;
+  opacity:1 !important;
 }
 
 /* card do login */
@@ -115,34 +115,10 @@ st.markdown("""
   background-color: #f5f5f5;
 
   /* SVG embutido (neutro e discreto) */
-  background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'>\
-<defs>\
-  <radialGradient id='g' cx='50%%' cy='40%%' r='80%%'>\
-    <stop offset='0%%' stop-color='%23f7f7f7'/>\
-    <stop offset='100%%' stop-color='%23f3f3f3'/>\
-  </radialGradient>\\
-  <style> .l{stroke:%23999;stroke-opacity:.18;stroke-width:1.2} .d{fill:%23999;fill-opacity:.22} </style>\
-</defs>\
-<rect width='100%%' height='100%%' fill='url(%23g)'/>\
-<g class='grid'>\
-  <path class='l' d='M-50,120 C200,80 350,160 520,120 740,65 980,165 1220,110 1420,65 1650,150 1700,120'/>\
-  <path class='l' d='M-50,320 C180,280 360,360 560,315 820,255 1020,330 1260,300 1450,280 1650,340 1700,320'/>\
-  <path class='l' d='M-50,520 C220,470 380,560 600,515 860,455 1060,540 1300,505 1500,480 1650,560 1700,520'/>\
-  <path class='l' d='M-50,720 C220,670 420,760 640,710 900,650 1120,740 1360,700 1540,670 1660,760 1700,720'/>\
-  <path class='l' d='M120,0 C160,220 260,300 420,360 640,440 860,420 1080,360 1300,300 1440,220 1500,0'/>\
-  <path class='l' d='M0,80 C200,180 360,220 560,220 800,220 1040,160 1280,60 1400,10 1500,-10 1700,10'/>\
-</g>\
-<g class='nodes'>\
-  <circle class='d' cx='200' cy='120' r='2.6'/><circle class='d' cx='520' cy='120' r='2.6'/>\
-  <circle class='d' cx='820' cy='255' r='2.6'/><circle class='d' cx='1060' cy='540' r='2.6'/>\
-  <circle class='d' cx='1280' cy='60' r='2.6'/><circle class='d' cx='1360' cy='700' r='2.6'/>\
-  <circle class='d' cx='420' cy='360' r='2.6'/><circle class='d' cx='600' cy='515' r='2.6'/>\
-</g>\
-</svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'><defs><radialGradient id='g' cx='50%%' cy='40%%' r='80%%'><stop offset='0%%' stop-color='%23f7f7f7'/><stop offset='100%%' stop-color='%23f3f3f3'/></radialGradient><style>.l{stroke:%23999;stroke-opacity:.18;stroke-width:1.2}.d{fill:%23999;fill-opacity:.22}</style></defs><rect width='100%%' height='100%%' fill='url(%23g)'/><g class='grid'><path class='l' d='M-50,120 C200,80 350,160 520,120 740,65 980,165 1220,110 1420,65 1650,150 1700,120'/><path class='l' d='M-50,320 C180,280 360,360 560,315 820,255 1020,330 1260,300 1450,280 1650,340 1700,320'/><path class='l' d='M-50,520 C220,470 380,560 600,515 860,455 1060,540 1300,505 1500,480 1650,560 1700,520'/><path class='l' d='M-50,720 C220,670 420,760 640,710 900,650 1120,740 1360,700 1540,670 1660,760 1700,720'/><path class='l' d='M120,0 C160,220 260,300 420,360 640,440 860,420 1080,360 1300,300 1440,220 1500,0'/><path class='l' d='M0,80 C200,180 360,220 560,220 800,220 1040,160 1280,60 1400,10 1500,-10 1700,10'/></g><g class='nodes'><circle class='d' cx='200' cy='120' r='2.6'/><circle class='d' cx='520' cy='120' r='2.6'/><circle class='d' cx='820' cy='255' r='2.6'/><circle class='d' cx='1060' cy='540' r='2.6'/><circle class='d' cx='1280' cy='60' r='2.6'/><circle class='d' cx='1360' cy='700' r='2.6'/><circle class='d' cx='420' cy='360' r='2.6'/><circle class='d' cx='600' cy='515' r='2.6'/></g></svg>");
   background-size: cover;
   background-position: center;
-  opacity: .45;               /* ajuste a intensidade do desenho (.30 a .60) */
+  opacity: .45; /* ajuste (.30 a .60) */
   filter: contrast(103%) brightness(101%);
 }
 
@@ -155,7 +131,9 @@ st.markdown("""
 }
 
 /* garante que o conteúdo fique acima do BG */
-.block-container, [data-testid="stSidebar"], header, footer { position: relative; z-index: 1; }
+.block-container, [data-testid="stSidebar"], header, footer {
+  position: relative; z-index: 1;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -200,6 +178,7 @@ def build_authenticator() -> stauth.Authenticate:
         config["credentials"], config["cookie"]["name"],
         config["cookie"]["key"], config["cookie"]["expiry_days"]
     )
+
 authenticator = build_authenticator()
 
 # ------------------------------------------------------------
@@ -221,10 +200,17 @@ with left:
       <li>{t['bul2']}</li>
       <li>{t['bul3']}</li>
     </ul>""", unsafe_allow_html=True)
-    st.markdown(f"<div class='cta-row'><a class='btn-primary' href='#login'>{t['cta_login']}</a><a class='btn-ghost' href='mailto:support@dapsistemas.com'>{t['cta_about']}</a></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='cta-row'><a class='btn-primary' href='#login'>{t['cta_login']}</a>"
+        f"<a class='btn-ghost' href='mailto:support@dapsistemas.com'>{t['cta_about']}</a></div>",
+        unsafe_allow_html=True
+    )
 
 with right:
-    st.markdown(f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div id='login' class='login-card'><div class='login-title'>{t['secure_access']}</div>",
+        unsafe_allow_html=True
+    )
     fields = {"Form name": "", "Username": "Usuário", "Password": "Senha", "Login": "Entrar"}
     try:
         name, auth_status, username = authenticator.login("main", fields=fields)
@@ -351,4 +337,3 @@ st.markdown(f"""
        <a href="https://example.com/privacidade" target="_blank">{t["privacy"]}</a></div>
 </div>
 """, unsafe_allow_html=True)
-
