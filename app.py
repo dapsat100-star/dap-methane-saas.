@@ -37,6 +37,28 @@ div[data-testid="stToolbar"] {display: none !important;}
 footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* reduz todo o espaço no topo da página */
+[data-testid="stAppViewContainer"]{ padding-top: 0 !important; }
+.block-container{ padding-top: .5rem !important; }   /* antes estava ~2rem */
+
+/* ajusta o toggle de idioma pra bem no alto */
+.lang-row{ top: 8px !important; }
+
+/* garante que as colunas comecem no alto */
+section.main > div{ padding-top: .5rem !important; } /* fallback para versões do Streamlit */
+
+/* opcional: diminui margens do herói */
+.hero-title{ margin-top: 4px !important; }
+.hero-eyebrow{ margin-top: 0 !important; }
+
+/* login ainda mais colado no topo em telas largas */
+@media (min-width: 992px){
+  #login{ margin-top: 0 !important; }
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 # ------------------------------------------------------------
