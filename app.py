@@ -121,28 +121,30 @@ svg = """
 """.strip()
 data_uri = "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")
 
-st.markdown(f"""
+st.markdown("""
 <style>
-[data-testid="stAppViewContainer"]::before {{
+[data-testid="stAppViewContainer"]::before {
   content:"";
   position: fixed; inset: 0;
   z-index: 0; pointer-events: none;
-  background-color: #f5f5f5;
-  background-image: url("{data_uri}");
-  background-repeat: repeat;
-  background-size: 300px 300px;   /* controla densidade da malha */
-  opacity: .25;                   /* mais sutil */
-}}
-[data-testid="stAppViewContainer"]::after {{
+  background: #f5f5f5 url('background.png') no-repeat center center;
+  background-size: cover;   /* cobre toda a tela */
+  opacity: .35;             /* ajuste a transparência (0.2 – 0.6) */
+  filter: contrast(103%) brightness(101%);
+}
+
+[data-testid="stAppViewContainer"]::after {
   content:""; position: fixed; inset: 0 0 auto 0; height: 28vh;
   pointer-events:none; z-index: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,0));
-}}
-.block-container, [data-testid="stSidebar"], header, footer {{
+  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,0));
+}
+
+.block-container, [data-testid="stSidebar"], header, footer {
   position: relative; z-index: 1;
-}}
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 # ------------------------------------------------------------
 # i18n
