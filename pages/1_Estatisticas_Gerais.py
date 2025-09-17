@@ -1,7 +1,7 @@
 # --- Config da página (deve ser a 1ª coisa do arquivo) ---
 import streamlit as st
 st.set_page_config(
-    page_title="📊 Estatísticas Gerais",
+    page_title="📊 Estatísticas Gerais teste",
     layout="wide",
     initial_sidebar_state="expanded"
 )
