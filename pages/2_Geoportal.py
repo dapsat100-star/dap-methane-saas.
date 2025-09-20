@@ -80,7 +80,7 @@ if logo_ui_path.exists():
         unsafe_allow_html=True,
     )
 
-st.title("📷 Geoportal de Metano — gráfico único")
+st.title("Plataforma Geoespacial DAP ATLAS")
 
 # ---- Link único na sidebar (opcional) ----
 with st.sidebar:
