@@ -82,7 +82,7 @@ if logo_ui_path.exists():
         unsafe_allow_html=True,
     )
 
-st.title("📷 Geoportal de Metano — gráfico único")
+st.title("📷 PLATAFORMA GEOESPACIAL DAP ATLAS")
 
 # ---- Guard de sessão ----
 auth_ok   = st.session_state.get("authentication_status", None)
