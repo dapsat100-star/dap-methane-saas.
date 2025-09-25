@@ -19,7 +19,7 @@ import streamlit_authenticator as stauth
 
 # ===================== CONFIG =====================
 DEFAULT_BASE_URL = "https://raw.githubusercontent.com/dapsat100-star/geoportal/main"
-LOGO_REL_PATH    = "images/logomavipe.jpeg"   # usado no PDF
+LOGO_REL_PATH    = "images/logomavipe.jpeg"  # usado no PDF
 # ==================================================
 
 # Mapa (opcional)
@@ -45,27 +45,29 @@ import matplotlib.pyplot as plt
 # ----------------- Página -----------------
 st.set_page_config(page_title="Geoportal — Metano", layout="wide", initial_sidebar_state="expanded")
 
-# === CSS para UI (remove menu multipágina padrão) ===
+# === CSS para UI (remove menu multipágina e reduz padding do topo) ===
 st.markdown(
     """
 <style>
 /* Esconde o cabeçalho nativo */
 header[data-testid="stHeader"] { display: none !important; }
 
-/* Mantém a sidebar visível (seu conteúdo customizado) */
+/* Mantém a sidebar visível (conteúdo customizado) */
 section[data-testid="stSidebar"], aside[data-testid="stSidebar"] {
   display: block !important; transform: none !important; visibility: visible !important;
 }
 div[data-testid="collapsedControl"]{ display:block !important; }
 
-/* === REMOVE o menu multipágina padrão da sidebar === */
+/* REMOVE o menu multipágina padrão da sidebar */
 div[data-testid="stSidebarNav"] { display: none !important; }
-/* Fallbacks para variações de versão */
 section[data-testid="stSidebar"] nav { display: none !important; }
 section[data-testid="stSidebar"] [role="navigation"] { display: none !important; }
 
-/* Logo no topo-direito */
-#top-right-logo { position: fixed; top: 16px; right: 16px; z-index: 1000; }
+/* Logo fixo no topo-direito */
+#top-right-logo { position: fixed; top: 12px; right: 16px; z-index: 1000; }
+
+/* Aproxima o conteúdo do topo (título sobe) */
+main.block-container { padding-top: 0.0rem !important; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -80,11 +82,7 @@ if logo_ui_path.exists():
         unsafe_allow_html=True,
     )
 
-st.title("Plataforma Geoespacial DAP ATLAS")
-
-# ---- Link único na sidebar (opcional) ----
-with st.sidebar:
-    st.page_link("pages/2_Geoportal.py", label="GEOPORTAL", icon="🗺️")
+st.title("📷 Geoportal de Metano — gráfico único")
 
 # ---- Guard de sessão ----
 auth_ok   = st.session_state.get("authentication_status", None)
@@ -153,6 +151,14 @@ def normalize_cols(df: pd.DataFrame) -> pd.DataFrame:
     df.columns = normed
     return df
 
+# ----------- rótulos de data PT-BR ------------
+def _fmt_pt_month(dt: pd.Timestamp) -> str:
+    meses = [
+        "janeiro","fevereiro","março","abril","maio","junho",
+        "julho","agosto","setembro","outubro","novembro","dezembro"
+    ]
+    return f"{meses[dt.month-1].capitalize()} de {dt.year}"
+
 def extract_dates_from_first_row(df: pd.DataFrame) -> Tuple[List[str], Dict[str, str], List[pd.Timestamp]]:
     cols = list(df.columns)
     try:
@@ -163,27 +169,29 @@ def extract_dates_from_first_row(df: pd.DataFrame) -> Tuple[List[str], Dict[str,
     labels, stamps = {}, []
     for c in date_cols:
         v = df.loc[0, c] if 0 in df.index else None
-        label, ts = None, pd.NaT
-        if pd.notna(v):
+        ts = pd.NaT
+        if pd.notna(v) and str(v).strip() != "":
             for dayfirst in (True, False):
                 try:
-                    dt = pd.to_datetime(v, dayfirst=dayfirst, errors="raise")
-                    label = dt.strftime("%Y-%m-%d"); ts = pd.to_datetime(label); break
+                    parsed = pd.to_datetime(v, dayfirst=dayfirst, errors="raise")
+                    ts = pd.Timestamp(year=parsed.year, month=parsed.month, day=1)
+                    break
                 except Exception:
-                    pass
-        if not label:
+                    continue
+        if pd.isna(ts):
             try:
-                dt = pd.to_datetime(str(c), dayfirst=True, errors="raise")
-                label = dt.strftime("%Y-%m"); ts = pd.to_datetime(label + "-01", errors="coerce")
+                parsed = pd.to_datetime(str(c), errors="raise", dayfirst=True)
+                ts = pd.Timestamp(year=parsed.year, month=parsed.month, day=1)
             except Exception:
-                label = str(c); ts = pd.NaT
-        labels[c] = label; stamps.append(ts)
+                ts = pd.NaT
+        labels[c] = _fmt_pt_month(ts) if pd.notna(ts) else str(c)
+        stamps.append(ts)
     return date_cols, labels, stamps
 
 def build_record_for_month(df: pd.DataFrame, date_col: str) -> Dict[str, Optional[str]]:
     dfi = df.copy()
     if dfi.columns[0] != "Parametro":
-        dfi.columns = ["Parametro"] + list(dfi.columns[1:])   # <- corrigido
+        dfi.columns = ["Parametro"] + list(dfi.columns[1:])
     dfi["Parametro"] = dfi["Parametro"].astype(str).str.strip()
     dfi = dfi.set_index("Parametro", drop=True)
     rec = {param: dfi.loc[param, date_col] for param in dfi.index}
@@ -303,7 +311,7 @@ with right:
     st.subheader("Detalhes do Registro")
     dfi = df_site.copy()
     if dfi.columns[0] != "Parametro":
-        dfi.columns = ["Parametro"] + list(dfi.columns[1:])   # <- corrigido
+        dfi.columns = ["Parametro"] + list(dfi.columns[1:])
     dfi["Parametro"] = dfi["Parametro"].astype(str).str.strip()
     dfi = dfi.set_index("Parametro", drop=True)
 
@@ -318,11 +326,36 @@ with right:
 
     st.markdown("---")
     st.caption("Tabela completa (parâmetro → valor):")
+
+    # ---------- TABELA (sem 'Parametro' e sem 'Imagem') ----------
     table_df = dfi[[selected_col]].copy()
     table_df.columns = ["Valor"]
-    if "Imagem" in table_df.index:
-        table_df = table_df.drop(index="Imagem")
-    table_df = table_df.applymap(lambda v: "" if (pd.isna(v)) else str(v))
+
+    # Remove linhas indesejadas (case-insensitive)
+    drop_keys = {"parametro", "imagem"}
+    to_drop = [ix for ix in table_df.index if str(ix).strip().lower() in drop_keys]
+    table_df = table_df.drop(index=to_drop, errors="ignore")
+
+    # ---- Formatação: remove "00:00:00" da linha "Data de Aquisição" ----
+    import unicodedata
+    def _norm(s: str) -> str:
+        s = "".join(ch for ch in unicodedata.normalize("NFKD", str(s)) if not unicodedata.category(ch).startswith("M"))
+        return s.strip().lower()
+
+    for ix in table_df.index:
+        v = table_df.at[ix, "Valor"]
+        if pd.isna(v):
+            table_df.at[ix, "Valor"] = ""
+            continue
+        if _norm(ix) == "data de aquisicao":
+            try:
+                dt = pd.to_datetime(v, dayfirst=True, errors="raise")
+                table_df.at[ix, "Valor"] = dt.strftime("%Y-%m-%d")  # só data
+            except Exception:
+                table_df.at[ix, "Valor"] = str(v).replace(" 00:00:00", "")
+        else:
+            table_df.at[ix, "Valor"] = str(v)
+
     st.dataframe(table_df, use_container_width=True)
 
 # ======== Gráfico único: linha (spline) + barras de incerteza ========
@@ -521,7 +554,6 @@ def build_report_pdf(
             if y - h < margin + 30:
                 c.showPage(); y = start_page()
             c.drawImage(main_img, margin, y - h, width=w, height=h, mask='auto')
-            # legenda da Figura 1
             c.setFont("Helvetica-Oblique", 9)
             c.drawString(margin, y - h - 12, "Figura 1 - Concentração de Metano em ppb")
             y -= h + 26
@@ -539,7 +571,6 @@ def build_report_pdf(
             if y - h < margin + 30:
                 c.showPage(); y = start_page()
             c.drawImage(img1, margin, y - h, width=w, height=h, mask='auto')
-            # legenda da Figura 2
             c.setFont("Helvetica-Oblique", 9)
             c.drawString(margin, y - h - 12, "Figura 2 - Série Histórica de Concentração de Metano")
             y -= h + 26
