@@ -30,6 +30,10 @@ try:
 except Exception:
     HAVE_MAP = False
 
+# URL/atribuição do mosaico de satélite (Esri World Imagery)
+ESRI_SAT_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+ESRI_ATTR    = "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community"
+
 # PDF deps
 from datetime import datetime, timezone
 from reportlab.pdfgen import canvas
@@ -82,7 +86,7 @@ if logo_ui_path.exists():
         unsafe_allow_html=True,
     )
 
-st.title("📷 PLATAFORMA GEOESPACIAL DAP ATLAS")
+st.title("📷 Geoportal de Metano — gráfico único")
 
 # ---- Guard de sessão ----
 auth_ok   = st.session_state.get("authentication_status", None)
@@ -298,12 +302,55 @@ with left:
         st.image(img, use_container_width=True)
     else:
         st.error("Imagem não encontrada para essa data.")
+
     if HAVE_MAP and (rec.get("_lat") is not None and rec.get("_long") is not None):
         with st.expander("🗺️ Mostrar mapa (opcional)", expanded=False):
             try:
-                m = folium.Map(location=[float(rec["_lat"]), float(rec["_long"])], zoom_start=13, tiles="OpenStreetMap")
-                folium.Marker([float(rec["_lat"]), float(rec["_long"])], tooltip=site).add_to(m)
-                st_folium(m, height=400, use_container_width=True)
+                base_choice = st.selectbox(
+                    "Camada base do mapa",
+                    ["Satélite (Esri)", "OpenStreetMap"],
+                    index=0,
+                    help="Escolha a base: imagem de satélite real (Esri) ou mapa OSM."
+                )
+                # Mapa sem base inicial
+                m = folium.Map(
+                    location=[float(rec["_lat"]), float(rec["_long"])],
+                    zoom_start=13,
+                    tiles=None
+                )
+                # Camadas base
+                folium.TileLayer(
+                    tiles=ESRI_SAT_URL,
+                    attr=ESRI_ATTR,
+                    name="Satélite (Esri World Imagery)",
+                    overlay=False,
+                    control=True,
+                    show=(base_choice.startswith("Satélite"))
+                ).add_to(m)
+                folium.TileLayer(
+                    "OpenStreetMap",
+                    name="OpenStreetMap",
+                    overlay=False,
+                    control=True,
+                    show=(base_choice.startswith("OpenStreetMap"))
+                ).add_to(m)
+
+                # 🔴 CircleMarker (SVG: não depende de imagens externas)
+                folium.CircleMarker(
+                    [float(rec["_lat"]), float(rec["_long"])],
+                    radius=8,
+                    color="#FFFFFF",       # borda branca
+                    weight=2,
+                    fill=True,
+                    fill_color="#E74C3C",  # vermelho
+                    fill_opacity=0.9,
+                    tooltip=site
+                ).add_to(m)
+
+                # Controle de camadas
+                folium.LayerControl(collapsed=False).add_to(m)
+
+                st_folium(m, height=420, use_container_width=True)
             except Exception as e:
                 st.caption(f"[Mapa indisponível: {e}]")
 
